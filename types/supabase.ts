@@ -59,6 +59,7 @@ export type Database = {
           month: number
           online_traffic: number | null
           phase: number
+          session_id: number | null
           social_sentiment: number | null
           temperature: number
         }
@@ -72,6 +73,7 @@ export type Database = {
           month: number
           online_traffic?: number | null
           phase: number
+          session_id?: number | null
           social_sentiment?: number | null
           temperature: number
         }
@@ -85,10 +87,57 @@ export type Database = {
           month?: number
           online_traffic?: number | null
           phase?: number
+          session_id?: number | null
           social_sentiment?: number | null
           temperature?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "items_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_progress: {
+        Row: {
+          created_at: string
+          current_decision: number
+          id: number
+          performance_history: Json | null
+          phase: number
+          player_id: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_decision: number
+          id?: number
+          performance_history?: Json | null
+          phase: number
+          player_id?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_decision?: number
+          id?: number
+          performance_history?: Json | null
+          phase?: number
+          player_id?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_progress_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       players: {
         Row: {
