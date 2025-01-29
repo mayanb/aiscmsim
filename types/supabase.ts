@@ -52,6 +52,7 @@ export type Database = {
         Row: {
           actual_demand: number
           advertising_spend: number | null
+          algorithm_prediction: number
           created_at: string
           decision_number: number
           id: number
@@ -66,6 +67,7 @@ export type Database = {
         Insert: {
           actual_demand: number
           advertising_spend?: number | null
+          algorithm_prediction: number
           created_at?: string
           decision_number: number
           id?: never
@@ -80,6 +82,7 @@ export type Database = {
         Update: {
           actual_demand?: number
           advertising_spend?: number | null
+          algorithm_prediction?: number
           created_at?: string
           decision_number?: number
           id?: never

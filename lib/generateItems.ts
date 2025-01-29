@@ -12,6 +12,7 @@ export interface Item {
     advertising_spend: number | null;
     online_traffic: number | null;
     actual_demand: number;
+    algorithm_prediction: number; // Added this field
     session_id?: number;
 }
 
@@ -21,10 +22,10 @@ export const generateSessionItems = (sessionId: number): Item[] => {
     
     // Helper function to generate base features
     const generateBaseFeatures = () => {
-        const last_year_sales = random.normal(1000, 100);
+        const last_year_sales = Math.round(random.normal(1000, 100));
         const month = random.randInt(1, 13);
         const base_temp = 62.5 + 32.5 * Math.sin(2 * Math.PI * (month - 6) / 12);
-        const temperature = random.normal(base_temp, 8);
+        const temperature = Math.round(random.normal(base_temp, 8));
         return { last_year_sales, month, temperature };
     };
 
@@ -72,6 +73,7 @@ export const generateSessionItems = (sessionId: number): Item[] => {
                 demand += random.normal(0, 100);
             }
         }
+        demand = Math.round(demand);
 
         return Math.max(0, demand); // Ensure demand is non-negative
     };
@@ -85,9 +87,14 @@ export const generateSessionItems = (sessionId: number): Item[] => {
 
         for (let i = 0; i < numDecisions; i++) {
             const base = generateBaseFeatures();
-            const sentiment = phase >= 3 ? random.uniform(-10, 10) : null;
-            const advertising = phase >= 4 ? random.uniform(100, 150) : null;
-            const online_traffic = phase >= 4 ? random.uniform(1000 + 10 * (advertising || 0), 100) : null;
+            const sentiment = Math.round(random.uniform(-10, 10));
+            const advertising = Math.round(random.uniform(100, 150));
+            const online_traffic = Math.round(random.uniform(1000 + 10 * (advertising || 0), 100));
+
+
+            // const sentiment = phase >= 3 ? Math.round(random.uniform(-10, 10)) : null;
+            // const advertising = phase >= 4 ? Math.round(random.uniform(100, 150)) : null;
+            // const online_traffic = phase >= 4 ? Math.round(random.uniform(1000 + 10 * (advertising || 0), 100)) : null;
 
             items.push({
                 phase,
@@ -97,6 +104,7 @@ export const generateSessionItems = (sessionId: number): Item[] => {
                 advertising_spend: advertising,
                 online_traffic,
                 actual_demand: calculateDemand(base, phase, sentiment, online_traffic, advertising),
+                algorithm_prediction: calculateAlgorithmPrediction(base.last_year_sales, base.month, base.temperature),
                 session_id: sessionId,
             });
         }
@@ -145,7 +153,7 @@ export const calculateAlgorithmPrediction = (
     const seasonal = Math.cos(2 * Math.PI * (month - 11) / 12);
     const tempEffect = -2.0 * Math.pow(temperature - 70, 2) / 50;
     
-    return 0.9 * last_year_sales + 300 * seasonal + tempEffect;
+    return Math.round(0.9 * last_year_sales + 300 * seasonal + tempEffect);
 };
 
 //export { generateSessionItems };

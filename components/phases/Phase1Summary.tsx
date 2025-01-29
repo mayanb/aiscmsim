@@ -138,15 +138,15 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
           </div>
 
           <div className="space-y-8">
-            <div className="h-80">
+            <div className="h-96 mb-12">
               <h3 className="text-lg font-semibold mb-4">Demand Predictions vs Actual</h3>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={summaryData.processedData}>
+                <LineChart data={summaryData.processedData} margin={{ top: 5, right: 20, bottom: 45, left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} />
+                  <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} tick={{ dy: 10 }} />
                   <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
-                  <Legend />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }}/>
                   <Line type="monotone" dataKey="actualDemand" stroke="#4B5563" name="Actual Demand" strokeWidth={2} />
                   <Line type="monotone" dataKey="playerPrediction" stroke="#2563EB" name="Your Prediction" strokeWidth={2} />
                   <Line type="monotone" dataKey="classAverage" stroke="#9CA3AF" name="Class Average" strokeWidth={2} />
@@ -154,15 +154,15 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
               </ResponsiveContainer>
             </div>
 
-            <div className="h-80">
+            <div className="h-96 mb-12">
               <h3 className="text-lg font-semibold mb-4">Prediction Errors Over Time</h3>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={summaryData.processedData}>
+                <LineChart data={summaryData.processedData} margin={{ top: 5, right: 20, bottom: 45, left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} />
+                  <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} tick={{ dy: 10 }} />
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
-                  <Legend />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }}/>
                   <Line type="monotone" dataKey="playerError" stroke="#2563EB" name="Your Error" strokeWidth={2} />
                   <Line type="monotone" dataKey="classError" stroke="#9CA3AF" name="Class Error" strokeWidth={2} />
                 </LineChart>
@@ -170,7 +170,7 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
             </div>
           </div>
 
-          <div className="mt-8 flex justify-center">
+          <div className="mt-16 flex justify-center">
             <Button 
               onClick={() => router.push('/phase2')} 
               className="w-48"
