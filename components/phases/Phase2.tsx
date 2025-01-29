@@ -51,6 +51,8 @@ const Phase2: React.FC<Phase2Props> = ({ sessionId, playerId }) => {
   const [performanceHistory, setPerformanceHistory] = useState<PerformanceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPhase2Complete, setIsPhase2Complete] = useState<boolean>(false);
+  const [allItems, setAllItems] = useState<Item[]>([]);
+  const [allDecisions, setAllDecisions] = useState<any[]>([]);
 
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -86,39 +88,46 @@ const Phase2: React.FC<Phase2Props> = ({ sessionId, playerId }) => {
       if (decision > 1) {
         // First get this player's decisions
         const { data: playerDecisions } = await supabase
-          .from('decisions')
-          .select(`
-            player_prediction,
-            items!inner (
-              id,
-              decision_number,
-              actual_demand,
-              algorithm_prediction,
-              phase
-            )
-          `)
-          .eq('player_id', playerId)
-          .eq('items.phase', 2)
-          .order('items.decision_number', { ascending: true });
+        .from('decisions')
+        .select(`
+          id,
+          player_prediction,
+          items!inner (
+            id,
+            decision_number,
+            actual_demand,
+            algorithm_prediction,
+            phase
+          )
+        `)
+        .eq('player_id', playerId)
+        .eq('items.phase', 2)
+        .eq('items.id', 'item_id') // This specifies the join condition
+        .order('items.decision_number', { ascending: true });
 
+          console.log("playerDecisions")
+        console.log(playerDecisions)
         // Then get all class decisions for these items (excluding current player)
         const { data: classDecisions } = await supabase
-          .from('decisions')
-          .select(`
-            player_prediction,
-            player_id,
-            items!inner (
-              id,
-              decision_number,
-              actual_demand,
-              algorithm_prediction,
-              phase
-            )
-          `)
-          .eq('items.phase', 2)
-          .neq('player_id', playerId)
-          .order('items.decision_number', { ascending: true });
+        .from('decisions')
+        .select(`
+          id,
+          player_prediction,
+          items!inner (
+            id,
+            decision_number,
+            actual_demand,
+            algorithm_prediction,
+            phase
+          )
+        `)
+        .neq('player_id', playerId)
+        .eq('items.phase', 2)
+        .eq('items.id', 'item_id') // This specifies the join condition
+        .order('items.decision_number', { ascending: true });
 
+            console.log("classDecisions")
+            console.log(classDecisions)
         if (playerDecisions && classDecisions) {
           const history: PerformanceData[] = playerDecisions.map((pd: any) => {
             // Get all class decisions for this item
@@ -186,8 +195,28 @@ const saveProgress = async (decision: number) => {
   };
 
   useEffect(() => {
-    const loadProgress = async () => {
+    const fetchInitialData = async () => {
       try {
+        // Fetch all Phase 2 items
+        const { data: items, error: itemsError } = await supabase
+          .from('items')
+          .select('*')
+          .eq('phase', 2)
+          .eq('session_id', sessionId)
+          .order('decision_number');
+
+        if (itemsError) throw itemsError;
+        setAllItems(items || []);
+
+        // Fetch all decisions
+        const { data: decisions, error: decisionsError } = await supabase
+          .from('decisions')
+          .select('*');
+
+        if (decisionsError) throw decisionsError;
+        setAllDecisions(decisions || []);
+
+        // Load progress
         const { data: progress } = await supabase
           .from('player_progress')
           .select('*')
@@ -201,21 +230,49 @@ const saveProgress = async (decision: number) => {
             setIsPhase2Complete(true);
           } else {
             setCurrentDecision(savedDecision);
-            await fetchCurrentItem(savedDecision);
+            const currentItem = items?.find(item => item.decision_number === savedDecision);
+            setCurrentItem(currentItem || null);
           }
         } else {
-          await fetchCurrentItem(1);
+          const firstItem = items?.find(item => item.decision_number === 1);
+          setCurrentItem(firstItem || null);
         }
       } catch (err) {
-        console.error('Error loading progress:', err);
-        await fetchCurrentItem(1);
+        console.error('Error fetching initial data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadProgress();
-  }, [sessionId]);
+    fetchInitialData();
+  }, [sessionId, playerId]);
+
+  const calculateClassMetrics = (itemId: string) => {
+    const itemDecisions = allDecisions.filter(d => 
+      d.item_id === itemId && d.player_id !== playerId
+    );
+
+    if (itemDecisions.length === 0) {
+      return { classError: 0, classAlgorithmDeviation: 0 };
+    }
+
+    const item = allItems.find(i => i.id === itemId);
+    if (!item) return { classError: 0, classAlgorithmDeviation: 0 };
+
+    const classError = Math.round(
+      itemDecisions.reduce((sum, d) => 
+        sum + Math.abs(d.player_prediction - item.actual_demand), 0
+      ) / itemDecisions.length
+    );
+
+    const classAlgorithmDeviation = Math.round(
+      itemDecisions.reduce((sum, d) => 
+        sum + Math.abs(d.player_prediction - item.algorithm_prediction), 0
+      ) / itemDecisions.length
+    );
+
+    return { classError, classAlgorithmDeviation };
+  };
 
   const handleSubmit = async () => {
     if (!prediction || !currentItem) return;
@@ -229,7 +286,15 @@ const saveProgress = async (decision: number) => {
           player_prediction: Number(prediction)
         });
 
+        // Update all decisions list
+      setAllDecisions([...allDecisions, {
+        player_id: playerId,
+        item_id: currentItem.id,
+        player_prediction: Number(prediction)
+      }]);
+
       const algorithmDeviation = Math.abs(Number(prediction) - currentItem.algorithm_prediction);
+      const { classError, classAlgorithmDeviation } = calculateClassMetrics(currentItem.id);
 
       const feedback = {
         actualDemand: currentItem.actual_demand,
@@ -237,7 +302,9 @@ const saveProgress = async (decision: number) => {
         algorithmPrediction: currentItem.algorithm_prediction,
         error: Math.abs(Number(prediction) - currentItem.actual_demand),
         algorithmError: Math.abs(currentItem.algorithm_prediction - currentItem.actual_demand),
-        algorithmDeviation
+        algorithmDeviation, 
+        classError,
+        classAlgorithmDeviation
       };
       setFeedback(feedback);
 
@@ -246,9 +313,9 @@ const saveProgress = async (decision: number) => {
         decision: currentDecision,
         playerError: feedback.error,
         algorithmError: feedback.algorithmError,
-        classError: 0, // TODO: Add class average calculation
+        classError, 
         algorithmDeviation,
-        classAlgorithmDeviation: 0 // TODO: Add class average deviation
+        classAlgorithmDeviation
       };
       setPerformanceHistory([...performanceHistory, newHistoryPoint]);
 
@@ -263,9 +330,10 @@ const saveProgress = async (decision: number) => {
     const nextDecision = currentDecision + 1;
     if (nextDecision <= 15) {
       setCurrentDecision(nextDecision);
+      const nextItem = allItems.find(item => item.decision_number === nextDecision);
+      setCurrentItem(nextItem || null);
       setFeedback(null);
       setPrediction('');
-      await fetchCurrentItem(nextDecision);
       await saveProgress(nextDecision);
     } else {
       setIsPhase2Complete(true);
