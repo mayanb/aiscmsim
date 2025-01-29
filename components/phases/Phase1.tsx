@@ -1,17 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../../lib/supabase';
-import Phase1Summary from '../phases/Phase1Summary';
+import Phase1Summary from './Phase1Summary';
 
 interface Phase1Props {
   sessionId: string;
   playerId: string;
-  onPhaseComplete: () => void;
 }
 
 interface Item {
@@ -38,154 +37,146 @@ interface PerformanceData {
   classAverage: number;
 }
 
-const Phase1: React.FC<Phase1Props> = ({ 
-    sessionId, 
-    playerId,
-    onPhaseComplete 
-  }) => {
-    const [currentDecision, setCurrentDecision] = useState<number>(1);
-    const [currentItem, setCurrentItem] = useState<Item | null>(null);
-    const [prediction, setPrediction] = useState<string>('');
-    const [error, setError] = useState<string | null>(null);
-    const [feedback, setFeedback] = useState<FeedbackData | null>(null);
-    const [performanceHistory, setPerformanceHistory] = useState<PerformanceData[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [isPhase1Complete, setIsPhase1Complete] = useState(false);
+const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
+  const [currentDecision, setCurrentDecision] = useState<number>(1);
+  const [currentItem, setCurrentItem] = useState<Item | null>(null);
+  const [prediction, setPrediction] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackData | null>(null);
+  const [performanceHistory, setPerformanceHistory] = useState<PerformanceData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isPhase1Complete, setIsPhase1Complete] = useState<boolean>(false);
 
-    // Fetch current item for the decision
-    const fetchCurrentItem = async (decision: number) => {
-        try {
-          const { data, error } = await supabase
-            .from('items')
-            .select('*')
-            .eq('phase', 1)
-            .eq('decision_number', decision)
-            .eq('session_id', sessionId)
-            .single();
+  // Fetch current item for the decision
+  const fetchCurrentItem = async (decision: number) => {
+    try {
+      const { data, error } = await supabase
+        .from('items')
+        .select('*')
+        .eq('phase', 1)
+        .eq('decision_number', decision)
+        .eq('session_id', sessionId)
+        .single();
+  
+      if (error) throw error;
       
-          if (error) throw error;
-          
-          setCurrentItem(data);
-        } catch (err) {
-          console.error('Error fetching current item:', err);
-          setError('Failed to load decision item');
-        }
-      };
-  
-    // Load saved progress
-    useEffect(() => {
-      const loadProgress = async () => {
-        try {
-          // First, load progress
-          const { data: progress } = await supabase
-            .from('player_progress')
-            .select('*')
-            .eq('player_id', playerId)
-            .eq('phase', 1)
-            .single();
-  
-          if (progress) {
-            const savedDecision = progress.current_decision || 1;
+      setCurrentItem(data);
+    } catch (err) {
+      console.error('Error fetching current item:', err);
+      setError('Failed to load decision item');
+    }
+  };
+
+  // Load saved progress
+  useEffect(() => {
+    const loadProgress = async () => {
+      try {
+        const { data: progress } = await supabase
+          .from('player_progress')
+          .select('*')
+          .eq('player_id', playerId)
+          .eq('phase', 1)
+          .single();
+
+        if (progress) {
+          const savedDecision = progress.current_decision || 1;
+          if (savedDecision > 10) {
+            setIsPhase1Complete(true);
+          } else {
             setCurrentDecision(savedDecision);
             setPerformanceHistory(progress.performance_history || []);
-            
-            // Then fetch the current item
             await fetchCurrentItem(savedDecision);
-          } else {
-            // If no progress, start with first decision
-            await fetchCurrentItem(1);
           }
-        } catch (err) {
-          console.error('Error loading progress:', err);
-          // Fetch first item if no progress found
+        } else {
           await fetchCurrentItem(1);
-        } finally {
-          // Always set loading to false after attempting to load data
-          setLoading(false);
         }
-      };
-      
-      loadProgress();
-    }, [playerId]);
-  
-    // Save progress
-    const saveProgress = async (decision: number, history: PerformanceData[]) => {
-      try {
-        await supabase
-          .from('player_progress')
-          .upsert({
-            player_id: playerId,
-            phase: 1,
-            current_decision: decision,
-            performance_history: history
-          }, {
-            onConflict: 'player_id,phase'
-          });
       } catch (err) {
-        console.error('Error saving progress:', err);
+        console.error('Error loading progress:', err);
+        await fetchCurrentItem(1);
+      } finally {
+        setLoading(false);
       }
     };
-  
-    // Modified handleSubmit
-    const handleSubmit = async () => {
-      if (!prediction || !currentItem) return;
+    
+    loadProgress();
+  }, [playerId, sessionId]);
+
+  // Save progress
+  const saveProgress = async (decision: number, history: PerformanceData[]) => {
+    try {
+      await supabase
+        .from('player_progress')
+        .upsert({
+          player_id: playerId,
+          phase: 1,
+          current_decision: decision,
+          performance_history: history
+        }, {
+          onConflict: 'player_id,phase'
+        });
+    } catch (err) {
+      console.error('Error saving progress:', err);
+    }
+  };
+
+  // Handle prediction submission
+  const handleSubmit = async () => {
+    if (!prediction || !currentItem) return;
+    
+    try {
+      const response = await fetch('/api/predictions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerId,
+          itemId: currentItem.id,
+          prediction: Number(prediction)
+        })
+      });
       
-      try {
-        const response = await fetch('/api/predictions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            playerId,
-            itemId: currentItem.id,
-            prediction: Number(prediction)
-          })
-        });
-        
-        const data = await response.json();
-        
-        const absoluteError = Math.abs(currentItem.actual_demand - Number(prediction));
-        const percentError = (absoluteError / currentItem.actual_demand) * 100;
-        
-        const updatedHistory = [...performanceHistory, {
-          decision: currentDecision,
-          error: absoluteError,
-          classAverage: data.classAverageError * currentItem.actual_demand / 100
-        }];
-  
-        setPerformanceHistory(updatedHistory);
-        await saveProgress(currentDecision, updatedHistory);
-  
-        setFeedback({
-          actualDemand: currentItem.actual_demand,
-          prediction: Number(prediction),
-          error: absoluteError,
-          percentError,
-          classAverageError: data.classAverageError
-        });
-  
-        setPrediction('');
-      } catch (err) {
-        setError('Failed to submit prediction');
-      }
-    };
-  
-    // Modified handleNext
-    const handleNext = async () => {
-      if (currentDecision < 10) {
-        const nextDecision = currentDecision + 1;
-        setCurrentDecision(nextDecision);
-        setFeedback(null);
-        
-        // Fetch next item
-        await fetchCurrentItem(nextDecision);
-        
-        await saveProgress(nextDecision, performanceHistory);
-      } else {
-        onPhaseComplete();
-      }
-    };
-  
-    // Calculate MAE
+      const data = await response.json();
+      
+      const absoluteError = Math.abs(currentItem.actual_demand - Number(prediction));
+      const percentError = (absoluteError / currentItem.actual_demand) * 100;
+      
+      const updatedHistory = [...performanceHistory, {
+        decision: currentDecision,
+        error: absoluteError,
+        classAverage: data.classAverageError * currentItem.actual_demand / 100
+      }];
+
+      setPerformanceHistory(updatedHistory);
+      await saveProgress(currentDecision, updatedHistory);
+
+      setFeedback({
+        actualDemand: currentItem.actual_demand,
+        prediction: Number(prediction),
+        error: absoluteError,
+        percentError,
+        classAverageError: data.classAverageError
+      });
+
+      setPrediction('');
+    } catch (err) {
+      setError('Failed to submit prediction');
+    }
+  };
+
+  // Handle next decision
+  const handleNext = async () => {
+    const nextDecision = currentDecision + 1;
+    if (nextDecision <= 10) {
+      setCurrentDecision(nextDecision);
+      setFeedback(null);
+      await fetchCurrentItem(nextDecision);
+      await saveProgress(nextDecision, performanceHistory);
+    } else {
+      setIsPhase1Complete(true);
+      await saveProgress(nextDecision, performanceHistory);
+    }
+  };
+
+  // Calculate MAE
   const calculateMAE = (data: PerformanceData[]) => {
     if (data.length === 0) return { yourMAE: 0, classMAE: 0 };
     
@@ -216,20 +207,7 @@ const Phase1: React.FC<Phase1Props> = ({
     return null;
   };
 
-  const handlePhaseComplete = () => {
-    // This method will be called when all 10 decisions are completed
-    setIsPhase1Complete(true);
-  };
-
-  const handleContinueToPhase2 = () => {
-    // Logic to move to Phase 2 or update parent component's state
-    // For example, you might emit an event or call a method passed as a prop
-    // to advance to the next phase of the simulation
-  };
-
-  
-// Existing render logic with minor modifications
-if (loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-lg">Loading...</div>
@@ -240,8 +218,20 @@ if (loading) {
   if (error) {
     return <div className="text-red-500 text-center p-4">{error}</div>;
   }
+
+  if (isPhase1Complete) {
+    return (
+      <Phase1Summary
+        sessionId={sessionId}
+        playerId={playerId}
+      />
+    );
+  }
+
+  // Rest of the existing render logic for the decision interface
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Existing decision interface JSX */}
       <Card className="border-2">
         <CardHeader className="bg-slate-50">
           <CardTitle>Decision {currentDecision} of 10</CardTitle>
@@ -262,7 +252,7 @@ if (loading) {
             </div>
           </div>
         </CardContent>
-        {!feedback && (  // Only show the prediction input if there's no feedback
+        {!feedback && (
           <CardFooter className="flex flex-col space-y-4 pt-6">
             <div className="w-full">
               <label className="block mb-2 font-medium">Your Demand Prediction:</label>
@@ -323,7 +313,8 @@ if (loading) {
         </Card>
       )}
 
-{performanceHistory.length > 0 && (
+      {/* Performance History Chart */}
+      {performanceHistory.length > 0 && (
         <Card>
           <CardHeader className="bg-slate-50">
             <CardTitle>Your Performance History</CardTitle>
