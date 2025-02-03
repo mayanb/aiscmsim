@@ -28,13 +28,11 @@ interface FeedbackData {
   prediction: number;
   error: number;
   percentError: number;
-  classAverageError: number;
 }
 
 interface PerformanceData {
   decision: number;
   error: number;
-  classAverage: number;
 }
 
 const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
@@ -142,7 +140,6 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
       const updatedHistory = [...performanceHistory, {
         decision: currentDecision,
         error: absoluteError,
-        classAverage: data.classAverageError * currentItem.actual_demand / 100
       }];
 
       setPerformanceHistory(updatedHistory);
@@ -152,8 +149,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
         actualDemand: currentItem.actual_demand,
         prediction: Number(prediction),
         error: absoluteError,
-        percentError,
-        classAverageError: data.classAverageError
+        percentError
       });
 
       setPrediction('');
@@ -181,11 +177,9 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
     if (data.length === 0) return { yourMAE: 0, classMAE: 0 };
     
     const totalYourError = data.reduce((sum, d) => sum + d.error, 0);
-    const totalClassError = data.reduce((sum, d) => sum + d.classAverage, 0);
     
     return {
       yourMAE: totalYourError / data.length,
-      classMAE: totalClassError / data.length
     };
   };
 
@@ -197,9 +191,6 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
           <p className="text-sm mb-1">Decision {label}</p>
           <p className="text-sm text-blue-600">
             Your Error: {Math.round(payload[0].value).toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-600">
-            Class Error: {Math.round(payload[1].value).toLocaleString()}
           </p>
         </div>
       );
@@ -283,7 +274,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
             <CardTitle>Decision Feedback</CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-3 gap-6">
               <div className="text-center p-4 bg-slate-50 rounded-lg">
                 <h3 className="font-semibold text-slate-600 mb-1">Your Prediction</h3>
                 <p className="text-2xl font-bold">{Math.round(feedback.prediction).toLocaleString()}</p>
@@ -295,10 +286,6 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
               <div className="text-center p-4 bg-slate-50 rounded-lg">
                 <h3 className="font-semibold text-slate-600 mb-1">Your Error</h3>
                 <p className="text-2xl font-bold">{Math.round(feedback.error).toLocaleString()}</p>
-              </div>
-              <div className="text-center p-4 bg-slate-50 rounded-lg">
-                <h3 className="font-semibold text-slate-600 mb-1">Class Average Error</h3>
-                <p className="text-2xl font-bold">{Math.round(feedback.classAverageError * feedback.actualDemand / 100).toLocaleString()}</p>
               </div>
             </div>
             <div className="mt-6 flex justify-center">
@@ -320,17 +307,11 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
             <CardTitle>Your Performance History</CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 gap-6 mb-6">
               <div className="text-center p-4 bg-slate-50 rounded-lg">
                 <h3 className="font-semibold text-slate-600 mb-1">Your Overall MAE</h3>
                 <p className="text-2xl font-bold">
                   {Math.round(calculateMAE(performanceHistory).yourMAE).toLocaleString()}
-                </p>
-              </div>
-              <div className="text-center p-4 bg-slate-50 rounded-lg">
-                <h3 className="font-semibold text-slate-600 mb-1">Class Overall MAE</h3>
-                <p className="text-2xl font-bold">
-                  {Math.round(calculateMAE(performanceHistory).classMAE).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -351,13 +332,6 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
                     dataKey="error" 
                     stroke="#2563eb" 
                     name="Your Error" 
-                    strokeWidth={2}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="classAverage" 
-                    stroke="#9ca3af" 
-                    name="Class Average" 
                     strokeWidth={2}
                   />
                 </LineChart>

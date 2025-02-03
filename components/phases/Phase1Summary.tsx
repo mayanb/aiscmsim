@@ -16,14 +16,11 @@ interface ProcessedDataPoint {
   decision: number;
   actualDemand: number;
   playerPrediction: number;
-  classAverage: number;
   playerError: number;
-  classError: number;
 }
 
 interface Metrics {
   playerMAE: number;
-  classMAE: number;
   totalDecisions: number;
   bestDecision: number;
   worstDecision: number;
@@ -60,20 +57,10 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
 
         if (decisionsError || !decisions) throw decisionsError || new Error('No decisions found');
 
-        // Get class average predictions for each item
-        const { data: allDecisions, error: allDecisionsError } = await supabase
-          .from('decisions')
-          .select('item_id, player_prediction');
-
-        if (allDecisionsError || !allDecisions) throw allDecisionsError || new Error('No class decisions found');
 
         // Process data for visualization
         const processedData: ProcessedDataPoint[] = items.map(item => {
           const playerDecision = decisions.find(d => d.item_id === item.id);
-          const itemDecisions = allDecisions.filter(d => d.item_id === item.id);
-          const classAvg = itemDecisions.length > 0 
-            ? itemDecisions.reduce((sum, d) => sum + d.player_prediction, 0) / itemDecisions.length
-            : 0;
           
           const playerPrediction = playerDecision?.player_prediction || 0;
           
@@ -81,16 +68,13 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
             decision: item.decision_number,
             actualDemand: item.actual_demand,
             playerPrediction,
-            classAverage: classAvg,
             playerError: Math.abs(playerPrediction - item.actual_demand),
-            classError: Math.abs(classAvg - item.actual_demand)
           };
         });
 
         // Calculate overall metrics
         const metrics: Metrics = {
           playerMAE: processedData.reduce((sum, d) => sum + d.playerError, 0) / processedData.length,
-          classMAE: processedData.reduce((sum, d) => sum + d.classError, 0) / processedData.length,
           totalDecisions: processedData.length,
           bestDecision: Math.min(...processedData.map(d => d.playerError)),
           worstDecision: Math.max(...processedData.map(d => d.playerError))
@@ -122,14 +106,10 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
           <CardTitle>Phase 1 Performance Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="p-4 bg-slate-50 rounded-lg text-center">
               <h3 className="text-sm font-medium text-slate-600">Your Average Error</h3>
               <p className="text-2xl font-bold">{Math.round(summaryData.metrics.playerMAE).toLocaleString()}</p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Class Average Error</h3>
-              <p className="text-2xl font-bold">{Math.round(summaryData.metrics.classMAE).toLocaleString()}</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-lg text-center">
               <h3 className="text-sm font-medium text-slate-600">Total Decisions</h3>
@@ -149,7 +129,6 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
                   <Legend wrapperStyle={{ paddingTop: '20px' }}/>
                   <Line type="monotone" dataKey="actualDemand" stroke="#4B5563" name="Actual Demand" strokeWidth={2} />
                   <Line type="monotone" dataKey="playerPrediction" stroke="#2563EB" name="Your Prediction" strokeWidth={2} />
-                  <Line type="monotone" dataKey="classAverage" stroke="#9CA3AF" name="Class Average" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

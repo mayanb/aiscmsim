@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 interface Phase2SummaryProps {
   sessionId: string;
   playerId: string;
-//   onContinue: () => void;
 }
 
 interface PlayerDecisionResponse {
@@ -47,7 +46,6 @@ interface SummaryStats {
   averageError: number;
   algorithmAverageError: number;
   averageDeviation: number;
-  classAverageDeviation: number;
   timesOutperformedAlgorithm: number;
 }
 
@@ -84,27 +82,6 @@ const router = useRouter();
         if (playerError) throw playerError;
         if (!playerDecisions) throw new Error('No decisions found');
 
-        // Fetch class decisions for comparison
-        const { data: classDecisions, error: classError } = await supabase
-          .from('decisions')
-          .select(`
-            player_prediction,
-            items!inner (
-              id,
-              decision_number,
-              actual_demand,
-              algorithm_prediction
-            )
-          `)
-          .eq('items.phase', 2)
-          .neq('player_id', playerId) as {
-            data: ClassDecisionResponse[] | null;
-            error: any;
-          };
-
-        if (classError) throw classError;
-        if (!classDecisions) throw new Error('No class decisions found');
-
         // Process player decisions
         const processedDecisions = playerDecisions.map(d => ({
           decision_number: d.items.decision_number,
@@ -116,13 +93,6 @@ const router = useRouter();
           algorithm_deviation: Math.abs(d.player_prediction - d.items.algorithm_prediction)
         }));
 
-        // Calculate class statistics
-        const classDeviations = classDecisions.map(d => 
-          Math.abs(d.player_prediction - d.items.algorithm_prediction)
-        );
-        const classAverageDeviation = Math.round(
-          classDeviations.reduce((sum, dev) => sum + dev, 0) / classDeviations.length
-        );
 
         // Calculate summary statistics
         const stats: SummaryStats = {
@@ -136,7 +106,6 @@ const router = useRouter();
           averageDeviation: Math.round(
             processedDecisions.reduce((sum, d) => sum + d.algorithm_deviation, 0) / processedDecisions.length
           ),
-          classAverageDeviation,
           timesOutperformedAlgorithm: processedDecisions.filter(d => d.error < d.algorithm_error).length
         };
 
@@ -182,10 +151,9 @@ const router = useRouter();
             <div className="text-center p-6 bg-slate-50 rounded-lg">
               <h3 className="text-sm font-medium text-slate-600 mb-2">Average Deviation from Algorithm</h3>
               <p className="text-3xl font-bold">{summaryStats.averageDeviation.toLocaleString()}</p>
-              <p className="text-sm text-slate-500 mt-2">Class: {summaryStats.classAverageDeviation.toLocaleString()}</p>
             </div>
             <div className="text-center p-6 bg-slate-50 rounded-lg">
-              <h3 className="text-sm font-medium text-slate-600 mb-2">Times Outperformed Algorithm</h3>
+              <h3 className="text-sm font-medium text-slate-600 mb-2">Num Beneficial Algorithm Adjustments</h3>
               <p className="text-3xl font-bold">{summaryStats.timesOutperformedAlgorithm} / {summaryStats.totalDecisions}</p>
             </div>
           </div>
@@ -217,19 +185,28 @@ const router = useRouter();
                   <CartesianGrid />
                   <XAxis 
                     dataKey="algorithm_deviation"
+                    type="number"
                     name="Deviation from Algorithm"
                     label={{ value: 'Deviation from Algorithm', position: 'bottom', offset: 35 }}
                     tick={{ dy: 15 }}
+                    domain={[0, 'maxData']}
+                    interval={0}
+                    tickCount={10}
                   />
                   <YAxis 
                     dataKey="error"
+                    type="number"
                     name="Prediction Error"
                     label={{ value: 'Prediction Error', angle: -90, position: 'insideLeft', offset: -10 }}
+                    domain={[0, 'maxData']}
+                    tickCount={10}
                   />
-                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                  <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px' }}/>
+                  <Tooltip 
+                    cursor={{ strokeDasharray: '3 3' }}
+                    formatter={(value: any) => Math.round(value).toLocaleString()}
+                    labelFormatter={(value: any) => `Deviation: ${Math.round(value).toLocaleString()}`}
+                  />
                   <Scatter
-                    name="Decisions"
                     data={decisions}
                     fill="#2563EB"
                   />

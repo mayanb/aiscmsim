@@ -38,9 +38,7 @@ interface PerformanceData {
   decision: number;
   playerError: number;
   algorithmError: number;
-  classError: number;
   algorithmDeviation: number;
-  classAlgorithmDeviation: number;
 }
 
 const Phase2: React.FC<Phase2Props> = ({ sessionId, playerId }) => {
@@ -83,98 +81,13 @@ const Phase2: React.FC<Phase2Props> = ({ sessionId, playerId }) => {
 
       if (error) throw error;
       setCurrentItem(data);
-
-      // Also fetch performance history
-      if (decision > 1) {
-        // First get this player's decisions
-        const { data: playerDecisions } = await supabase
-        .from('decisions')
-        .select(`
-          id,
-          player_prediction,
-          items!inner (
-            id,
-            decision_number,
-            actual_demand,
-            algorithm_prediction,
-            phase
-          )
-        `)
-        .eq('player_id', playerId)
-        .eq('items.phase', 2)
-        .eq('items.id', 'item_id') // This specifies the join condition
-        .order('items.decision_number', { ascending: true });
-
-          console.log("playerDecisions")
-        console.log(playerDecisions)
-        // Then get all class decisions for these items (excluding current player)
-        const { data: classDecisions } = await supabase
-        .from('decisions')
-        .select(`
-          id,
-          player_prediction,
-          items!inner (
-            id,
-            decision_number,
-            actual_demand,
-            algorithm_prediction,
-            phase
-          )
-        `)
-        .neq('player_id', playerId)
-        .eq('items.phase', 2)
-        .eq('items.id', 'item_id') // This specifies the join condition
-        .order('items.decision_number', { ascending: true });
-
-            console.log("classDecisions")
-            console.log(classDecisions)
-        if (playerDecisions && classDecisions) {
-          const history: PerformanceData[] = playerDecisions.map((pd: any) => {
-            // Get all class decisions for this item
-            const itemClassDecisions = classDecisions.filter(
-              (cd: any) => cd.items.id === pd.items.id
-            );
-
-            // Calculate class averages if there are other players' decisions
-            let classError = 0;
-            let classAlgorithmDeviation = 0;
-            
-            if (itemClassDecisions.length > 0) {
-              // Calculate class average error
-              classError = Math.round(
-                itemClassDecisions.reduce((sum: number, cd: any) => 
-                  sum + Math.abs(cd.player_prediction - cd.items.actual_demand), 0
-                ) / itemClassDecisions.length
-              );
-
-              // Calculate class average algorithm deviation
-              classAlgorithmDeviation = Math.round(
-                itemClassDecisions.reduce((sum: number, cd: any) => 
-                  sum + Math.abs(cd.player_prediction - cd.items.algorithm_prediction), 0
-                ) / itemClassDecisions.length
-              );
-            }
-
-            return {
-              decision: pd.items.decision_number,
-              playerError: Math.abs(pd.player_prediction - pd.items.actual_demand),
-              algorithmError: Math.abs(pd.items.algorithm_prediction - pd.items.actual_demand),
-              classError,
-              algorithmDeviation: Math.abs(pd.player_prediction - pd.items.algorithm_prediction),
-              classAlgorithmDeviation
-            };
-          });
-          
-          setPerformanceHistory(history);
-        }
-      }
-
       setLoading(false);
     } catch (err) {
       console.error('Error fetching item:', err);
       setLoading(false);
     }
   };
+
 
   // Save progress
 const saveProgress = async (decision: number) => {
@@ -194,6 +107,7 @@ const saveProgress = async (decision: number) => {
     }
   };
 
+
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -208,21 +122,15 @@ const saveProgress = async (decision: number) => {
         if (itemsError) throw itemsError;
         setAllItems(items || []);
 
-        // Fetch all decisions
-        const { data: decisions, error: decisionsError } = await supabase
-          .from('decisions')
-          .select('*');
-
-        if (decisionsError) throw decisionsError;
-        setAllDecisions(decisions || []);
-
-        // Load progress
-        const { data: progress } = await supabase
+        // Load progress including performance history
+        const { data: progress, error: progressError } = await supabase
           .from('player_progress')
           .select('*')
           .eq('player_id', playerId)
           .eq('phase', 2)
           .single();
+
+        if (progressError && progressError.code !== 'PGRST116') throw progressError;
 
         if (progress) {
           const savedDecision = progress.current_decision || 1;
@@ -232,6 +140,10 @@ const saveProgress = async (decision: number) => {
             setCurrentDecision(savedDecision);
             const currentItem = items?.find(item => item.decision_number === savedDecision);
             setCurrentItem(currentItem || null);
+            // Set the performance history from saved progress
+            if (progress.performance_history) {
+              setPerformanceHistory(progress.performance_history);
+            }
           }
         } else {
           const firstItem = items?.find(item => item.decision_number === 1);
@@ -247,32 +159,7 @@ const saveProgress = async (decision: number) => {
     fetchInitialData();
   }, [sessionId, playerId]);
 
-  const calculateClassMetrics = (itemId: string) => {
-    const itemDecisions = allDecisions.filter(d => 
-      d.item_id === itemId && d.player_id !== playerId
-    );
 
-    if (itemDecisions.length === 0) {
-      return { classError: 0, classAlgorithmDeviation: 0 };
-    }
-
-    const item = allItems.find(i => i.id === itemId);
-    if (!item) return { classError: 0, classAlgorithmDeviation: 0 };
-
-    const classError = Math.round(
-      itemDecisions.reduce((sum, d) => 
-        sum + Math.abs(d.player_prediction - item.actual_demand), 0
-      ) / itemDecisions.length
-    );
-
-    const classAlgorithmDeviation = Math.round(
-      itemDecisions.reduce((sum, d) => 
-        sum + Math.abs(d.player_prediction - item.algorithm_prediction), 0
-      ) / itemDecisions.length
-    );
-
-    return { classError, classAlgorithmDeviation };
-  };
 
   const handleSubmit = async () => {
     if (!prediction || !currentItem) return;
@@ -294,7 +181,6 @@ const saveProgress = async (decision: number) => {
       }]);
 
       const algorithmDeviation = Math.abs(Number(prediction) - currentItem.algorithm_prediction);
-      const { classError, classAlgorithmDeviation } = calculateClassMetrics(currentItem.id);
 
       const feedback = {
         actualDemand: currentItem.actual_demand,
@@ -302,9 +188,7 @@ const saveProgress = async (decision: number) => {
         algorithmPrediction: currentItem.algorithm_prediction,
         error: Math.abs(Number(prediction) - currentItem.actual_demand),
         algorithmError: Math.abs(currentItem.algorithm_prediction - currentItem.actual_demand),
-        algorithmDeviation, 
-        classError,
-        classAlgorithmDeviation
+        algorithmDeviation
       };
       setFeedback(feedback);
 
@@ -313,9 +197,7 @@ const saveProgress = async (decision: number) => {
         decision: currentDecision,
         playerError: feedback.error,
         algorithmError: feedback.algorithmError,
-        classError, 
         algorithmDeviation,
-        classAlgorithmDeviation
       };
       setPerformanceHistory([...performanceHistory, newHistoryPoint]);
 
@@ -453,7 +335,6 @@ const saveProgress = async (decision: number) => {
                       <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px' }}/>
                       <Line type="monotone" dataKey="playerError" stroke="#2563EB" name="Your Error" strokeWidth={2} />
                       <Line type="monotone" dataKey="algorithmError" stroke="#DC2626" name="Algorithm Error" strokeWidth={2} />
-                      <Line type="monotone" dataKey="classError" stroke="#9CA3AF" name="Class Error" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -472,7 +353,6 @@ const saveProgress = async (decision: number) => {
                       <Tooltip content={<CustomTooltip />} />
                       <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px' }}/>
                       <Line type="monotone" dataKey="algorithmDeviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
-                      <Line type="monotone" dataKey="classAlgorithmDeviation" stroke="#9CA3AF" name="Class Avg Deviation" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

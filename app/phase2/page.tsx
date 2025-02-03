@@ -23,6 +23,12 @@ export default function Phase2Page() {
     if (!sessionId || !playerId) {
       router.push('/login');
     }
+    // Check if user has already seen the intro
+    const hasSeenIntro = localStorage.getItem(`phase2Intro_${playerId}`);
+    if (hasSeenIntro) {
+        setShowIntro(false);
+    }
+    
   }, [sessionId, playerId, router]);
 
   if (!sessionId || !playerId) {
@@ -30,6 +36,8 @@ export default function Phase2Page() {
   }
 
   const handleBeginPhase2 = () => {
+    // Store that user has seen the intro
+    localStorage.setItem(`phase2Intro_${playerId}`, 'true');
     setShowIntro(false);
   };
 
