@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
+import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 interface Phase1SummaryProps {
   sessionId: string;

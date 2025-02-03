@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { supabase } from '../../lib/supabase';
 import Phase2Summary from './Phase2Summary';
+import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 interface Phase2Props {
   sessionId: string;
@@ -134,7 +135,7 @@ const saveProgress = async (decision: number) => {
 
         if (progress) {
           const savedDecision = progress.current_decision || 1;
-          if (savedDecision > 15) {
+          if (savedDecision > GAME_CONFIG.PHASE_2_DECISIONS) {
             setIsPhase2Complete(true);
           } else {
             setCurrentDecision(savedDecision);
@@ -210,7 +211,7 @@ const saveProgress = async (decision: number) => {
     if (!feedback) return;
 
     const nextDecision = currentDecision + 1;
-    if (nextDecision <= 15) {
+    if (nextDecision <= GAME_CONFIG.PHASE_2_DECISIONS) {
       setCurrentDecision(nextDecision);
       const nextItem = allItems.find(item => item.decision_number === nextDecision);
       setCurrentItem(nextItem || null);
@@ -240,7 +241,7 @@ const saveProgress = async (decision: number) => {
     <div className="space-y-6 max-w-4xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle>Decision {currentDecision} of 15</CardTitle>
+          <CardTitle>Decision {currentDecision} of {GAME_CONFIG.PHASE_2_DECISIONS}</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="grid grid-cols-3 gap-6">
@@ -363,7 +364,7 @@ const saveProgress = async (decision: number) => {
                   onClick={handleNext}
                   className="w-48"
                 >
-                  {currentDecision < 15 ? 'Next Decision' : 'Complete Phase'}
+                  {currentDecision < GAME_CONFIG.PHASE_2_DECISIONS ? 'Next Decision' : 'Complete Phase'}
                 </Button>
               </div>
             </CardContent>

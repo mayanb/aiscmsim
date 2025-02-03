@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../../lib/supabase';
 import Phase1Summary from './Phase1Summary';
+import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 interface Phase1Props {
   sessionId: string;
@@ -78,7 +79,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
 
         if (progress) {
           const savedDecision = progress.current_decision || 1;
-          if (savedDecision > 10) {
+          if (savedDecision > GAME_CONFIG.PHASE_1_DECISIONS) {
             setIsPhase1Complete(true);
           } else {
             setCurrentDecision(savedDecision);
@@ -161,7 +162,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
   // Handle next decision
   const handleNext = async () => {
     const nextDecision = currentDecision + 1;
-    if (nextDecision <= 10) {
+    if (nextDecision <= GAME_CONFIG.PHASE_1_DECISIONS) {
       setCurrentDecision(nextDecision);
       setFeedback(null);
       await fetchCurrentItem(nextDecision);
@@ -225,7 +226,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
       {/* Existing decision interface JSX */}
       <Card className="border-2">
         <CardHeader className="bg-slate-50">
-          <CardTitle>Decision {currentDecision} of 10</CardTitle>
+          <CardTitle>Decision {currentDecision} of {GAME_CONFIG.PHASE_1_DECISIONS}</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="grid grid-cols-3 gap-6">
@@ -293,7 +294,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
                 onClick={handleNext} 
                 className="w-48"
               >
-                {currentDecision < 10 ? 'Next Decision' : 'Complete Phase'}
+                {currentDecision < GAME_CONFIG.PHASE_1_DECISIONS ? 'Next Decision' : 'Complete Phase'}
               </Button>
             </div>
           </CardContent>

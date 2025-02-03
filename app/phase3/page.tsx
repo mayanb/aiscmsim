@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Phase3Intro from '../../components/phases/Phase3Intro';
 import Phase3 from '../../components/phases/Phase3';
+import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 export default function Phase3Page() {
   const router = useRouter();
@@ -54,7 +55,7 @@ export default function Phase3Page() {
         <h1 className="text-2xl font-bold mb-6">Phase 3: Private Information Demand Predictions</h1>
 
         <div className="mb-6">
-        <p>Welcome to your third task as a demand planner! In this phase, you'll make 20 demand predictions for various items.</p>
+        <p>Welcome to your third task as a demand planner! In this phase, you'll make {GAME_CONFIG.PHASE_3_DECISIONS} demand predictions for various items.</p>
         <p>For each item, you'll see:</p>
         <ul className="list-disc ml-6 mt-2">
             <li>Last year's sales for the same month (used by the algorithm)</li>

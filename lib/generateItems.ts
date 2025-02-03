@@ -1,5 +1,6 @@
 // lib/generateItems.ts
 import { createClient } from '@supabase/supabase-js'
+import { GAME_CONFIG } from '../config';  // Adjust path as needed
 
 // lib/generateItems.ts
 export interface Item {
@@ -80,10 +81,10 @@ export const generateSessionItems = (sessionId: number): Item[] => {
 
     // Generate items for all phases
     [1, 2, 3, 4, 5].forEach(phase => {
-        const numDecisions = phase === 1 ? 10 : 
-                           phase === 2 ? 15 : 
-                           phase === 3 ? 20 : 
-                           phase === 4 ? 25 : 20;
+        const numDecisions = phase === 1 ? GAME_CONFIG.PHASE_1_DECISIONS : 
+                           phase === 2 ? GAME_CONFIG.PHASE_2_DECISIONS : 
+                           phase === 3 ? GAME_CONFIG.PHASE_3_DECISIONS : 
+                           phase === 4 ? GAME_CONFIG.PHASE_4_DECISIONS : GAME_CONFIG.PHASE_5_DECISIONS;
 
         for (let i = 0; i < numDecisions; i++) {
             const base = generateBaseFeatures();

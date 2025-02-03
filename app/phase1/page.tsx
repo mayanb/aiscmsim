@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import Phase1 from '../../components/phases/Phase1';
+import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 
 export default function Phase1Page() {
@@ -32,7 +33,7 @@ export default function Phase1Page() {
       <h1 className="text-2xl font-bold mb-6">Phase 1: Initial Demand Predictions</h1>
       
       <div className="mb-6">
-        <p>Welcome to your first task as a demand planner! In this phase, you'll make 10 demand predictions for various items.</p>
+        <p>Welcome to your first task as a demand planner! In this phase, you'll make {GAME_CONFIG.PHASE_1_DECISIONS} demand predictions for various items.</p>
         <p>For each item, you'll see:</p>
         <ul className="list-disc ml-6 mt-2">
           <li>Last year's sales for the same month</li>

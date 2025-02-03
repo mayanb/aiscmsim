@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Phase2Intro from '../../components/phases/Phase2Intro';
 import Phase2 from '../../components/phases/Phase2';
+import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 export default function Phase2Page() {
   const router = useRouter();
@@ -54,7 +55,7 @@ export default function Phase2Page() {
         <h1 className="text-2xl font-bold mb-6">Phase 2: Algorithm-Based Demand Predictions</h1>
 
         <div className="mb-6">
-        <p>Welcome to your second task as a demand planner! In this phase, you'll make 15 demand predictions for various items.</p>
+        <p>Welcome to your second task as a demand planner! In this phase, you'll make {GAME_CONFIG.PHASE_2_DECISIONS} demand predictions for various items.</p>
         <p>For each item, you'll see:</p>
         <ul className="list-disc ml-6 mt-2">
             <li>Last year's sales for the same month</li>
