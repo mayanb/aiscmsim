@@ -141,9 +141,7 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
                   <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} tick={{ dy: 10 }} />
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
-                  <Legend wrapperStyle={{ paddingTop: '20px' }}/>
                   <Line type="monotone" dataKey="playerError" stroke="#2563EB" name="Your Error" strokeWidth={2} />
-                  <Line type="monotone" dataKey="classError" stroke="#9CA3AF" name="Class Error" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

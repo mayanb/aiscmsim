@@ -350,7 +350,7 @@ const saveProgress = async (decision: number) => {
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
                         tick={{ dy: 15 }}
                       />
-                      <YAxis label={{ value: 'Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 100 }} />
+                      <YAxis label={{ value: 'Absolute Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 100 }} />
                       <Tooltip content={<CustomTooltip />} />
                       <Line type="monotone" dataKey="algorithmDeviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
                     </LineChart>

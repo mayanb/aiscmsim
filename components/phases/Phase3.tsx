@@ -359,7 +359,7 @@ const calculateAverageError = (data: PerformanceData[]) => {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="h-96 mb-16">
+                <div className="h-96 mb-16 pb-8">
                   <h3 className="text-lg font-semibold mb-4">Algorithm Deviation Over Time</h3>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
@@ -369,14 +369,14 @@ const calculateAverageError = (data: PerformanceData[]) => {
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
                         tick={{ dy: 20 }}
                       />
-                      <YAxis label={{ value: 'Absolute Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
+                      <YAxis label={{ value: 'Absolute Deviation from Algo.', angle: -90, position: 'insideLeft', offset: -10, dy: 110 }} />
                       <Tooltip content={<CustomTooltip />} />
                       <Line type="monotone" dataKey="algorithmDeviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
 
-                <div className="h-96 mb-28">
+                <div className="h-96 mb-28 pb-8">
                     <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Error</h3>
                     <ResponsiveContainer width="100%" height="100%">
                         <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
@@ -435,7 +435,7 @@ const calculateAverageError = (data: PerformanceData[]) => {
                         <YAxis 
                             type="number"
                             domain={[0, 'auto']}
-                            label={{ value: 'Absolute Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
+                            label={{ value: 'Absolute Deviation from Algo.', angle: -90, position: 'insideLeft', offset: -10, dy: 110 }}
                         />
                         <Tooltip 
                             cursor={{ strokeDasharray: '3 3' }}

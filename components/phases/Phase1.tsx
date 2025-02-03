@@ -309,7 +309,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 gap-6 mb-6">
               <div className="text-center p-4 bg-slate-50 rounded-lg">
-                <h3 className="font-semibold text-slate-600 mb-1">Your Overall MAE</h3>
+                <h3 className="font-semibold text-slate-600 mb-1">Your Mean Absolute Error (MAE)</h3>
                 <p className="text-2xl font-bold">
                   {Math.round(calculateMAE(performanceHistory).yourMAE).toLocaleString()}
                 </p>
@@ -317,7 +317,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
             </div>
             <div className="h-80 mb-8">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={performanceHistory} margin={{ top: 5, right: 20, bottom: 30, left: 20 }}>
+                <LineChart data={performanceHistory} margin={{ top: 5, right: 20, bottom: 50, left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="decision"

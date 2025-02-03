@@ -166,12 +166,12 @@ const router = useRouter();
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="decision_number" 
-                    label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
+                    label={{ value: 'Decision Number', position: 'bottom', offset: 50 }}
                     tick={{ dy: 15 }}
                   />
                   <YAxis label={{ value: 'Absolute Deviation', angle: -90, position: 'insideLeft', offset: -10 }} />
                   <Tooltip />
-                  <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px' }}/>
+                  <Legend wrapperStyle={{ paddingTop: '15px', paddingBottom: '10px' }}/>
                   <Line type="monotone" dataKey="algorithm_deviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
                   <Line type="monotone" dataKey="algorithm_error" stroke="#DC2626" name="Algorithm Error" strokeWidth={2} />
                 </LineChart>
@@ -186,8 +186,8 @@ const router = useRouter();
                   <XAxis 
                     dataKey="algorithm_deviation"
                     type="number"
-                    name="Deviation from Algorithm"
-                    label={{ value: 'Deviation from Algorithm', position: 'bottom', offset: 35 }}
+                    name="Absolute Deviation from Algorithm"
+                    label={{ value: 'Absolute Deviation from Algorithm', position: 'bottom', offset: 35 }}
                     tick={{ dy: 15 }}
                     domain={[0, 'maxData']}
                     interval={0}

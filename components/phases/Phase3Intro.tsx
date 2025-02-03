@@ -186,7 +186,7 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
                     dataKey="sentiment_score"
                     type="number"
                     domain={[-10, 10]}
-                    label={{ value: 'Focus Group Sentiment Score', position: 'bottom', offset: 35 }}
+                    label={{ value: 'Focus Group Sentiment Score', position: 'bottom', offset: 25 }}
                     tick={{ dy: 10 }}
                   />
                   <YAxis 
@@ -202,6 +202,8 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
                           <div className="bg-white p-3 border rounded shadow-lg">
                             <p className="text-sm">Sentiment: {data.sentiment_score}</p>
                             <p className="text-sm">Error: {Math.round(data.algorithm_error).toLocaleString()}</p>
+                            <p className="text-sm">Algorithm Prediction: {Math.round(data.algorithm_prediction).toLocaleString()}</p>
+                            <p className="text-sm">Actual Demand: {Math.round(data.actual_demand).toLocaleString()}</p>
                           </div>
                         );
                       }
