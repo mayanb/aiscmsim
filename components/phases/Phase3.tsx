@@ -1,15 +1,15 @@
 
-  'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, ScatterChart, Scatter, LineChart, Line, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { supabase } from '../../lib/supabase';
-import Phase2Summary from './Phase2Summary';
+import Phase3Summary from './Phase3Summary';
 
-interface Phase2Props {
+interface Phase3Props {
   sessionId: string;
   playerId: string;
 }
@@ -21,6 +21,7 @@ interface Item {
   last_year_sales: number;
   month: number;
   temperature: number;
+  social_sentiment: number;
   actual_demand: number;
   algorithm_prediction: number;
 }
@@ -32,6 +33,7 @@ interface FeedbackData {
   error: number;
   algorithmError: number;
   algorithmDeviation: number;
+  sentimentScore: number;
 }
 
 interface PerformanceData {
@@ -39,16 +41,17 @@ interface PerformanceData {
   playerError: number;
   algorithmError: number;
   algorithmDeviation: number;
+  sentimentScore: number;
 }
 
-const Phase2: React.FC<Phase2Props> = ({ sessionId, playerId }) => {
+const Phase3: React.FC<Phase3Props> = ({ sessionId, playerId }) => {
   const [currentDecision, setCurrentDecision] = useState<number>(1);
   const [currentItem, setCurrentItem] = useState<Item | null>(null);
   const [prediction, setPrediction] = useState<string>('');
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [performanceHistory, setPerformanceHistory] = useState<PerformanceData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isPhase2Complete, setIsPhase2Complete] = useState<boolean>(false);
+  const [isPhase3Complete, setIsPhase3Complete] = useState<boolean>(false);
   const [allItems, setAllItems] = useState<Item[]>([]);
   const [allDecisions, setAllDecisions] = useState<any[]>([]);
 
@@ -74,7 +77,7 @@ const Phase2: React.FC<Phase2Props> = ({ sessionId, playerId }) => {
       const { data, error } = await supabase
         .from('items')
         .select('*')
-        .eq('phase', 2)
+        .eq('phase', 3)
         .eq('decision_number', decision)
         .eq('session_id', sessionId)
         .single();
@@ -96,7 +99,7 @@ const saveProgress = async (decision: number) => {
         .from('player_progress')
         .upsert({
           player_id: playerId,
-          phase: 2,
+          phase: 3,
           current_decision: decision,
           performance_history: performanceHistory
         }, {
@@ -111,11 +114,11 @@ const saveProgress = async (decision: number) => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        // Fetch all Phase 2 items
+        // Fetch all Phase 3 items
         const { data: items, error: itemsError } = await supabase
           .from('items')
           .select('*')
-          .eq('phase', 2)
+          .eq('phase', 3)
           .eq('session_id', sessionId)
           .order('decision_number');
 
@@ -127,15 +130,15 @@ const saveProgress = async (decision: number) => {
           .from('player_progress')
           .select('*')
           .eq('player_id', playerId)
-          .eq('phase', 2)
+          .eq('phase', 3)
           .single();
 
         if (progressError && progressError.code !== 'PGRST116') throw progressError;
 
         if (progress) {
           const savedDecision = progress.current_decision || 1;
-          if (savedDecision > 15) {
-            setIsPhase2Complete(true);
+          if (savedDecision > 20) {
+            setIsPhase3Complete(true);
           } else {
             setCurrentDecision(savedDecision);
             const currentItem = items?.find(item => item.decision_number === savedDecision);
@@ -188,7 +191,8 @@ const saveProgress = async (decision: number) => {
         algorithmPrediction: currentItem.algorithm_prediction,
         error: Math.abs(Number(prediction) - currentItem.actual_demand),
         algorithmError: Math.abs(currentItem.algorithm_prediction - currentItem.actual_demand),
-        algorithmDeviation
+        algorithmDeviation,
+        sentimentScore: currentItem.social_sentiment
       };
       setFeedback(feedback);
 
@@ -198,6 +202,7 @@ const saveProgress = async (decision: number) => {
         playerError: feedback.error,
         algorithmError: feedback.algorithmError,
         algorithmDeviation,
+        sentimentScore: currentItem.social_sentiment
       };
       setPerformanceHistory([...performanceHistory, newHistoryPoint]);
 
@@ -206,11 +211,22 @@ const saveProgress = async (decision: number) => {
     }
   };
 
+  // Helper functions for calculating averages
+const calculateAverageError = (data: PerformanceData[]) => {
+    if (!data || data.length === 0) return 0;
+    return Math.round(data.reduce((sum, d) => sum + d.playerError, 0) / data.length);
+  };
+  
+  const calculateAlgorithmAverageError = (data: PerformanceData[]) => {
+    if (!data || data.length === 0) return 0;
+    return Math.round(data.reduce((sum, d) => sum + d.algorithmError, 0) / data.length);
+  };
+
   const handleNext = async () => {
     if (!feedback) return;
 
     const nextDecision = currentDecision + 1;
-    if (nextDecision <= 15) {
+    if (nextDecision <= 20) {
       setCurrentDecision(nextDecision);
       const nextItem = allItems.find(item => item.decision_number === nextDecision);
       setCurrentItem(nextItem || null);
@@ -218,7 +234,7 @@ const saveProgress = async (decision: number) => {
       setPrediction('');
       await saveProgress(nextDecision);
     } else {
-      setIsPhase2Complete(true);
+      setIsPhase3Complete(true);
       await saveProgress(nextDecision);
     }
   };
@@ -227,9 +243,9 @@ const saveProgress = async (decision: number) => {
     return <div className="text-center p-8">Loading...</div>;
   }
 
-  if (isPhase2Complete) {
+  if (isPhase3Complete) {
     return (
-      <Phase2Summary
+      <Phase3Summary
         sessionId={sessionId}
         playerId={playerId}
       />
@@ -240,10 +256,10 @@ const saveProgress = async (decision: number) => {
     <div className="space-y-6 max-w-4xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle>Decision {currentDecision} of 15</CardTitle>
+          <CardTitle>Decision {currentDecision} of 20</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-4 gap-6">
             <div className="text-center p-4 bg-slate-50 rounded-lg">
               <h3 className="font-semibold text-slate-600 mb-1">Last Year's Sales</h3>
               <p className="text-2xl font-bold">{Math.round(currentItem?.last_year_sales || 0).toLocaleString()}</p>
@@ -257,6 +273,10 @@ const saveProgress = async (decision: number) => {
             <div className="text-center p-4 bg-slate-50 rounded-lg">
               <h3 className="font-semibold text-slate-600 mb-1">Temperature</h3>
               <p className="text-2xl font-bold">{Math.round(currentItem?.temperature || 0)}°F</p>
+            </div>
+            <div className="text-center p-4 bg-slate-50 rounded-lg">
+              <h3 className="font-semibold text-slate-600 mb-1">Focus Group Sentiment Score</h3>
+              <p className="text-2xl font-bold">{currentItem?.social_sentiment || 0}</p>
             </div>
           </div>
 
@@ -323,17 +343,16 @@ const saveProgress = async (decision: number) => {
                 <div className="h-96 mb-16">
                   <h3 className="text-lg font-semibold mb-4">Prediction Errors Over Time</h3>
                   <ResponsiveContainer width="100%" height="100%">
-                    {/* <LineChart data={performanceHistory} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}> */}
-                    <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
+                  <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="decision" 
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                        tick={{ dy: 15 }}
+                        tick={{ dy: 20 }}
                       />
                       <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px', marginBottom: '20px' }}/>
+                      <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px', marginBottom: '14px' }}/>
                       <Line type="monotone" dataKey="playerError" stroke="#2563EB" name="Your Error" strokeWidth={2} />
                       <Line type="monotone" dataKey="algorithmError" stroke="#DC2626" name="Algorithm Error" strokeWidth={2} />
                     </LineChart>
@@ -343,19 +362,110 @@ const saveProgress = async (decision: number) => {
                 <div className="h-96 mb-16">
                   <h3 className="text-lg font-semibold mb-4">Algorithm Deviation Over Time</h3>
                   <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                    <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="decision" 
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                        tick={{ dy: 15 }}
+                        tick={{ dy: 20 }}
                       />
-                      <YAxis label={{ value: 'Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 100 }} />
+                      <YAxis label={{ value: 'Absolute Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                       <Tooltip content={<CustomTooltip />} />
                       <Line type="monotone" dataKey="algorithmDeviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
+
+                <div className="h-96 mb-28">
+                    <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Error</h3>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                            dataKey="sentimentScore"
+                            type="number"
+                            domain={[-10, 10]}
+                            name="Sentiment Score"
+                            label={{ value: 'Sentiment Score', position: 'bottom', offset: 35 }}
+                        />
+                        <YAxis 
+                            type="number"
+                            domain={[0, 'auto']}
+                            label={{ value: 'Algorithm Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
+                        />
+                        <Tooltip 
+                            cursor={{ strokeDasharray: '3 3' }}
+                            content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                <div className="bg-white p-3 border rounded shadow-lg">
+                                    <p className="text-sm">Sentiment: {data.sentimentScore.toFixed(1)}</p>
+                                    <p className="text-sm text-red-600">Algorithm Error: {Math.round(data.algorithmError).toLocaleString()}</p>
+                                    <p className="text-sm text-blue-600">Your Deviation: {Math.round(data.algorithmDeviation).toLocaleString()}</p>
+                                    <p className="text-sm text-slate-600">Decision: {data.decision}</p>
+                                </div>
+                                );
+                            }
+                            return null;
+                            }}
+                        />
+                        <Scatter
+                            name="Algorithm Error"
+                            data={performanceHistory.sort((a, b) => a.sentimentScore - b.sentimentScore)}
+                            fill="#DC2626"
+                            dataKey="algorithmError"
+                        />
+                        </ScatterChart>
+                    </ResponsiveContainer>
+                </div>
+
+                <div className="h-96 mb-28">
+                    <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Absolute Deviation</h3>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                            dataKey="sentimentScore"
+                            type="number"
+                            domain={[-10, 10]}
+                            name="Sentiment Score"
+                            label={{ value: 'Sentiment Score', position: 'bottom', offset: 35 }}
+                        />
+                        <YAxis 
+                            type="number"
+                            domain={[0, 'auto']}
+                            label={{ value: 'Absolute Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
+                        />
+                        <Tooltip 
+                            cursor={{ strokeDasharray: '3 3' }}
+                            content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                <div className="bg-white p-3 border rounded shadow-lg">
+                                    <p className="text-sm">Sentiment: {data.sentimentScore.toFixed(1)}</p>
+                                    <p className="text-sm text-red-600">Algorithm Error: {Math.round(data.algorithmError).toLocaleString()}</p>
+                                    <p className="text-sm text-blue-600">Your Deviation: {Math.round(data.algorithmDeviation).toLocaleString()}</p>
+                                    <p className="text-sm text-slate-600">Decision: {data.decision}</p>
+                                </div>
+                                );
+                            }
+                            return null;
+                            }}
+                        />
+                        <Scatter
+                            name="Algorithm Deviation"
+                            data={performanceHistory.sort((a, b) => a.sentimentScore - b.sentimentScore)}
+                            fill="#2563EB"
+                            dataKey="algorithmDeviation"
+                        />
+                        </ScatterChart>
+                    </ResponsiveContainer>
+                </div>
+
+
+                
               </div>
 
               <div className="mt-16 flex justify-center">
@@ -363,15 +473,17 @@ const saveProgress = async (decision: number) => {
                   onClick={handleNext}
                   className="w-48"
                 >
-                  {currentDecision < 15 ? 'Next Decision' : 'Complete Phase'}
+                  {currentDecision < 20 ? 'Next Decision' : 'Complete Phase'}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </>
       )}
+
+    
     </div>
   );
 };
 
-export default Phase2;
+export default Phase3;
