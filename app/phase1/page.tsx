@@ -44,7 +44,6 @@ export default function Phase1Page() {
       <Phase1 
         sessionId={sessionId}
         playerId={playerId}
-        // onPhase1Complete={handlePhaseComplete}
       />
     </div>
   );

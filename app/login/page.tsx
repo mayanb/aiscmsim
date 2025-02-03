@@ -17,7 +17,7 @@ export default function StudentLoginPage() {
   const [studentName, setStudentName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [debugInfo, setDebugInfo] = useState<string>('')
+//   const [debugInfo, setDebugInfo] = useState<string>('')
 
   // Load active sessions
   useEffect(() => {
@@ -40,16 +40,11 @@ export default function StudentLoginPage() {
     setSessions(data || [])
   }
 
-  const addDebugInfo = (info: string) => {
-    setDebugInfo(prev => `${prev}\n${info}`)
-    console.log(info)
-  }
 
   // Handle join session
   const joinSession = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setDebugInfo('')
     
     if (!selectedSession) {
       setError('Please select a session')
@@ -64,7 +59,6 @@ export default function StudentLoginPage() {
     setLoading(true)
 
     try {
-      addDebugInfo('Creating player...')
       // First, create the player
       const { data: player, error: playerError } = await supabase
         .from('players')
@@ -78,26 +72,21 @@ export default function StudentLoginPage() {
         .single()
 
       if (playerError) {
-        addDebugInfo('Error creating player: ' + playerError.message)
         throw playerError;
       }
-      addDebugInfo('Player created successfully')
 
       // Check for existing items
-      addDebugInfo('Checking for existing items...')
       const { count: itemsCount, error: countError } = await supabase
         .from('items')
         .select('*', { count: 'exact', head: true })
         .eq('session_id', selectedSession)
 
       if (countError) {
-        addDebugInfo('Error checking items: ' + countError.message)
         throw countError;
       }
 
       // If no items exist, generate them through the API
       if (!itemsCount) {
-        addDebugInfo('No items found, generating items...')
         const response = await fetch('/api/generate-items', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -106,14 +95,11 @@ export default function StudentLoginPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          addDebugInfo('Error generating items: ' + JSON.stringify(errorData))
           throw new Error('Failed to generate items: ' + JSON.stringify(errorData));
         }
-        addDebugInfo('Items generated successfully')
       }
 
       // Create initial progress record
-      addDebugInfo('Creating progress record...')
       const { error: progressError } = await supabase
         .from('player_progress')
         .insert([{
@@ -124,15 +110,12 @@ export default function StudentLoginPage() {
         }]);
 
       if (progressError) {
-        addDebugInfo('Error creating progress: ' + progressError.message)
         throw progressError;
       }
-      addDebugInfo('Progress record created')
 
       // Set cookies for the session
       document.cookie = `sessionId=${selectedSession}; path=/`
       document.cookie = `playerId=${player.id}; path=/`
-      addDebugInfo('Cookies set, redirecting...')
 
       // Redirect to Phase 1
       router.push('/phase1')
@@ -180,18 +163,6 @@ export default function StudentLoginPage() {
             required
           />
         </div>
-
-        {error && (
-          <div className="text-red-500 text-sm">
-            {error}
-          </div>
-        )}
-
-        {debugInfo && (
-          <div className="text-xs font-mono whitespace-pre-wrap bg-gray-100 p-2 rounded">
-            {debugInfo}
-          </div>
-        )}
 
         <button
           type="submit"
