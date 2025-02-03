@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 interface Phase2SummaryProps {
   sessionId: string;
   playerId: string;
+//   onContinue: () => void;
 }
 
 interface PlayerDecisionResponse {
@@ -51,7 +52,7 @@ interface SummaryStats {
 }
 
 const Phase2Summary: React.FC<Phase2SummaryProps> = ({ sessionId, playerId }) => {
-    const router = useRouter();
+const router = useRouter();
   const [decisions, setDecisions] = useState<DecisionData[]>([]);
   const [summaryStats, setSummaryStats] = useState<SummaryStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +74,9 @@ const Phase2Summary: React.FC<Phase2SummaryProps> = ({ sessionId, playerId }) =>
           `)
           .eq('player_id', playerId)
           .eq('items.phase', 2)
-          .order('items.decision_number', { ascending: true }) as { 
+          .order('created_at') as { 
+            // 'items.decision_number', { ascending: true }) 
+          
             data: PlayerDecisionResponse[] | null; 
             error: any; 
           };

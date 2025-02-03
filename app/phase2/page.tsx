@@ -42,11 +42,26 @@ export default function Phase2Page() {
           onBeginPhase2={handleBeginPhase2}
         />
       ) : (
+        <div className="container mx-auto py-8">
+        <h1 className="text-2xl font-bold mb-6">Phase 2: Algorithm-Based Demand Predictions</h1>
+
+        <div className="mb-6">
+        <p>Welcome to your second task as a demand planner! In this phase, you'll make 15 demand predictions for various items.</p>
+        <p>For each item, you'll see:</p>
+        <ul className="list-disc ml-6 mt-2">
+            <li>Last year's sales for the same month</li>
+            <li>The current month</li>
+            <li>The average temperature</li>
+            <li>Your company algorithm's demand forecast</li>
+        </ul>
         <Phase2
           sessionId={sessionId}
           playerId={playerId}
         />
+        </div></div>
       )}
     </div>
   );
 }
+
+
