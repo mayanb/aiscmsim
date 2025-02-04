@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Phase4Intro from '../../components/phases/Phase4Intro';
-// import Phase4 from '../../components/phases/Phase4';
+import Phase4 from '../../components/phases/Phase4';
 import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 export default function Phase4Page() {
@@ -67,10 +67,10 @@ export default function Phase4Page() {
             <li>Your company algorithm's demand forecast</li>
             <li>Your company algorithm's confidence score</li>
         </ul>
-        {/* <Phase4
+        <Phase4
           sessionId={sessionId}
           playerId={playerId}
-        /> */}
+        />
         </div></div>
       )}
     </div>
