@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     // Generate items for this session
-    const items = generateSessionItems(parseInt(sessionId));
+    const items = generateSessionItems(parseInt(sessionId), true);
     console.log(`Generated ${items.length} items`);
 
     // Insert items in batches to avoid potential payload size limits

@@ -378,7 +378,7 @@ const calculateAverageError = (data: PerformanceData[]) => {
                 </div>
 
                 <div className="h-96 mb-28 pb-8">
-                    <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Error</h3>
+                    <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Absolute Error</h3>
                     <ResponsiveContainer width="100%" height="100%">
                         <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -392,7 +392,7 @@ const calculateAverageError = (data: PerformanceData[]) => {
                         <YAxis 
                             type="number"
                             domain={[0, 'auto']}
-                            label={{ value: 'Algorithm Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
+                            label={{ value: 'Algorithm Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
                         />
                         <Tooltip 
                             cursor={{ strokeDasharray: '3 3' }}

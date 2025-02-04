@@ -397,7 +397,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                         <TableCell>{Math.round(decision.last_year_sales).toLocaleString()}</TableCell>
                         <TableCell>{Math.round(decision.temperature)}°F</TableCell>
                         <TableCell className="font-bold">
-                          {decision.social_sentiment.toFixed(1)}
+                          {decision.social_sentiment}
                         </TableCell>
                         <TableCell>{Math.round(decision.algorithm_prediction).toLocaleString()}</TableCell>
                         <TableCell>{Math.round(decision.player_prediction).toLocaleString()}</TableCell>

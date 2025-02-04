@@ -5,6 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '../../lib/supabase';
+import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 interface Phase2IntroProps {
   sessionId: string;
@@ -120,7 +121,7 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
             </div>
             <div className="p-4 bg-slate-50 rounded-lg text-center">
               <h3 className="text-sm font-medium text-slate-600">Algorithm Performed Better In</h3>
-              <p className="text-2xl font-bold">{algorithmBetterCount} / 10 decisions</p>
+              <p className="text-2xl font-bold">{algorithmBetterCount} / {GAME_CONFIG.PHASE_1_DECISIONS} decisions</p>
             </div>
           </div>
 

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-// import Phase4Intro from '../../components/phases/Phase4Intro';
+import Phase4Intro from '../../components/phases/Phase4Intro';
 // import Phase4 from '../../components/phases/Phase4';
 import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
@@ -61,13 +61,16 @@ export default function Phase4Page() {
             <li>Last year's sales for the same month (used by the algorithm)</li>
             <li>The current month (used by the algorithm)</li>
             <li>The average temperature (used by the algorithm)</li>
-            <li>The focus group's sentiment score (not given to the algorithm)</li>
+            <li>The amount of online traffic - daily visits to the product's page (not given to the algorithm)</li>
+            <li>The amount of money spent on advertising (not given to the algorithm)</li>
+            {/* <li>The focus group's sentiment score (not given to the algorithm)</li> */}
             <li>Your company algorithm's demand forecast</li>
+            <li>Your company algorithm's confidence score</li>
         </ul>
-        <Phase4
+        {/* <Phase4
           sessionId={sessionId}
           playerId={playerId}
-        />
+        /> */}
         </div></div>
       )}
     </div>
