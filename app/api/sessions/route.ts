@@ -17,7 +17,7 @@ export async function POST(request: Request) {
         if (sessionError) throw sessionError
 
         // Generate items
-        const items = generateSessionItems(session.id)
+        const items = generateSessionItems(session.id, true)
 
         // Insert items
         const { error: itemsError } = await supabase

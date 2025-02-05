@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { generateSessionItems, getMarketSegment, calculateAlgorithmConfidence, SeededRandom } from '../lib/generateItems';
+import { calculateAlgorithmConfidence, SeededRandom } from '../lib/generateItems';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';

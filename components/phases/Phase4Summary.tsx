@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { generateSessionItems, getMarketSegment, calculateAlgorithmConfidence, SeededRandom } from '../../lib/generateItems';
+import { calculateAlgorithmConfidence, SeededRandom } from '../../lib/generateItems';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LineChart, Line, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';

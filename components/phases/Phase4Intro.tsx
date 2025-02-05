@@ -2,11 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { generateSessionItems, getMarketSegment, calculateAlgorithmConfidence, SeededRandom } from '../../lib/generateItems';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ScatterChart, Scatter } from 'recharts';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ScatterChart, Scatter } from 'recharts';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '../../lib/supabase';
-import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 interface Phase4IntroProps {
   sessionId: string;
