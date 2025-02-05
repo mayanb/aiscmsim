@@ -4,12 +4,11 @@ const nextConfig = {
       ignoreDuringBuilds: true,
     },
     typescript: {
-      // !! WARN !!
-      // Dangerously allow production builds to successfully complete even if
-      // your project has type errors.
-      // !! WARN !!
       ignoreBuildErrors: true,
     },
+    output: 'standalone',
+    // Disable static page generation
+    staticPageGenerationTimeout: 0,
+    // Disable static exports
+    output: process.env.NEXT_EXPORT ? 'export' : 'standalone',
   }
-  
-  module.exports = nextConfig

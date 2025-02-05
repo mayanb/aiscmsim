@@ -1,7 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 import GameFinish from '../../components/GameFinish';
 
 export default function FinishPage() {
@@ -29,9 +28,11 @@ export default function FinishPage() {
     }
 
   return (
+    <div>
     <GameFinish
       sessionId={sessionId}
       playerId={playerId}
     />
+    </div>
   );
 }
