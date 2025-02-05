@@ -55,17 +55,17 @@ export default function Phase4Page() {
         <h1 className="text-2xl font-bold mb-6">Phase 4: Regime Shift Demand Predictions</h1>
 
         <div className="mb-6">
-        <p>Welcome to your fourth and final task as a demand planner! In this phase, you'll make {GAME_CONFIG.PHASE_4_DECISIONS} demand predictions for various items.</p>
-        <p>For each item, you'll see:</p>
+        <p>Welcome to your fourth and final task as a demand planner! In this phase, you&apos;ll make {GAME_CONFIG.PHASE_4_DECISIONS} demand predictions for various items.</p>
+        <p>For each item, you&apos;ll see:</p>
         <ul className="list-disc ml-6 mt-2">
-            <li>Last year's sales for the same month (used by the algorithm)</li>
+            <li>Last year&apos;s sales for the same month (used by the algorithm)</li>
             <li>The current month (used by the algorithm)</li>
             <li>The average temperature (used by the algorithm)</li>
-            <li>The amount of online traffic - daily visits to the product's page (not given to the algorithm)</li>
+            <li>The amount of online traffic - daily visits to the product&apos;s page (not given to the algorithm)</li>
             <li>The amount of money spent on advertising (not given to the algorithm)</li>
-            {/* <li>The focus group's sentiment score (not given to the algorithm)</li> */}
-            <li>Your company algorithm's demand forecast</li>
-            <li>Your company algorithm's confidence score</li>
+            {/* <li>The focus group&apos;s sentiment score (not given to the algorithm)</li> */}
+            <li>Your company algorithm&apos;s demand forecast</li>
+            <li>Your company algorithm&apos;s confidence score</li>
         </ul>
         <Phase4
           sessionId={sessionId}

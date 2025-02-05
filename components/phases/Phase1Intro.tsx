@@ -31,9 +31,9 @@ const Phase1Intro: React.FC<Phase1IntroProps> = ({ sessionId, playerId, onBeginP
 
           <div>
             <h3 className="text-lg font-semibold mb-2">Available Information</h3>
-            <p>For each decision, you'll receive:</p>
+            <p>For each decision, you&apos;ll receive:</p>
             <ul className="list-disc ml-6 mt-2 space-y-2">
-              <li>Last year's sales for the same month</li>
+              <li>Last year&apos;s sales for the same month</li>
               <li>The current month</li>
               <li>The average temperature</li>
             </ul>
@@ -41,7 +41,7 @@ const Phase1Intro: React.FC<Phase1IntroProps> = ({ sessionId, playerId, onBeginP
 
           <div>
             <h3 className="text-lg font-semibold mb-2">Your Goal</h3>
-            <p>Your objective is to predict the demand as accurately as possible. After each phase, you'll be able to see:</p>
+            <p>Your objective is to predict the demand as accurately as possible. After each phase, you&apos;ll be able to see:</p>
             <ul className="list-disc ml-6 mt-2 space-y-2">
               <li>How close your predictions were to the actual demand</li>
               <li>Your average prediction error</li>

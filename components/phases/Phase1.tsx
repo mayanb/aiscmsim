@@ -231,7 +231,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
         <CardContent className="pt-6">
           <div className="grid grid-cols-3 gap-6">
             <div className="text-center p-4 bg-slate-50 rounded-lg">
-              <h3 className="font-semibold text-slate-600 mb-1">Last Year's Sales</h3>
+              <h3 className="font-semibold text-slate-600 mb-1">Last Year&apos;s Sales</h3>
               <p className="text-2xl font-bold">{Math.round(currentItem?.last_year_sales || 0).toLocaleString()}</p>
             </div>
             <div className="text-center p-4 bg-slate-50 rounded-lg">

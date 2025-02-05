@@ -101,7 +101,7 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
       <Alert className="bg-blue-50">
         <AlertDescription className="text-lg">
           Welcome to Phase 2! Your company has developed an AI algorithm to assist with demand forecasting.
-          Let's examine how it would have performed on your Phase 1 decisions.
+          Let&apos;s examine how it would have performed on your Phase 1 decisions.
         </AlertDescription>
       </Alert>
 

@@ -55,14 +55,14 @@ export default function Phase3Page() {
         <h1 className="text-2xl font-bold mb-6">Phase 3: Private Information Demand Predictions</h1>
 
         <div className="mb-6">
-        <p>Welcome to your third task as a demand planner! In this phase, you'll make {GAME_CONFIG.PHASE_3_DECISIONS} demand predictions for various items.</p>
-        <p>For each item, you'll see:</p>
+        <p>Welcome to your third task as a demand planner! In this phase, you&apos;ll make {GAME_CONFIG.PHASE_3_DECISIONS} demand predictions for various items.</p>
+        <p>For each item, you&apos;ll see:</p>
         <ul className="list-disc ml-6 mt-2">
-            <li>Last year's sales for the same month (used by the algorithm)</li>
+            <li>Last year&apos;s sales for the same month (used by the algorithm)</li>
             <li>The current month (used by the algorithm)</li>
             <li>The average temperature (used by the algorithm)</li>
-            <li>The focus group's sentiment score (not given to the algorithm)</li>
-            <li>Your company algorithm's demand forecast</li>
+            <li>The focus group&apos;s sentiment score (not given to the algorithm)</li>
+            <li>Your company algorithm&apos;s demand forecast</li>
         </ul>
         <Phase3
           sessionId={sessionId}

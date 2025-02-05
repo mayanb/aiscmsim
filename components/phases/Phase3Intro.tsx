@@ -107,11 +107,11 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
             that the company's algorithm does not have access to.
           </p>
           <p>
-            You've started polling focus groups on how much they like each product. From them, you calculate 
+            You&apos;ve started polling focus groups on how much they like each product. From them, you calculate 
             your own sentiment score (from -10 to 10) based on how much the focus group likes the product.
           </p>
           <p>
-            You've shown the focus groups the products that you just made forecasts for and obtained their 
+            You&apos;ve shown the focus groups the products that you just made forecasts for and obtained their 
             sentiment scores for those products. Look at the data below and see how the focus group's 
             sentiment score might be helpful in making your own demand predictions or in adjusting the 
             algorithm&apos;s demand predictions.

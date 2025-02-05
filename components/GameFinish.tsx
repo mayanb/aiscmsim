@@ -218,7 +218,7 @@ const GameFinish: React.FC<GameFinishProps> = ({ sessionId, playerId }) => {
     <div className="space-y-8 max-w-7xl mx-auto">
       <Alert className="bg-blue-50">
         <AlertDescription className="text-lg">
-          Congratulations on completing the Demand Forecasting Game! Let's review your performance across all phases.
+          Congratulations on completing the Demand Forecasting Game! Let&apos;s review your performance across all phases.
         </AlertDescription>
       </Alert>
 

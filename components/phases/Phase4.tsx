@@ -274,7 +274,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
         <CardContent className="pt-6">
           <div className="grid grid-cols-3 gap-6">
             <div className="text-center p-4 bg-slate-50 rounded-lg">
-              <h3 className="font-semibold text-slate-600 mb-1">Last Year's Sales</h3>
+              <h3 className="font-semibold text-slate-600 mb-1">Last Year&apos;s Sales</h3>
               <p className="text-2xl font-bold">{Math.round(currentItem?.last_year_sales || 0).toLocaleString()}</p>
             </div>
             <div className="text-center p-4 bg-slate-50 rounded-lg">
@@ -299,7 +299,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
 
           <div className="mt-6 p-6 bg-blue-50 rounded-lg">
             <div className="text-center">
-              <h3 className="font-semibold text-blue-800 mb-2">Algorithm's Prediction</h3>
+              <h3 className="font-semibold text-blue-800 mb-2">Algorithm&apos;s Prediction</h3>
               <p className="text-4xl font-bold text-blue-900 mb-2">
                 {Math.round(currentItem?.algorithm_prediction || 0).toLocaleString()}
               </p>
@@ -347,7 +347,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
                     <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.error).toLocaleString()}</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
-                    <h3 className="font-semibold text-slate-600 mb-2">Algorithm's Prediction</h3>
+                    <h3 className="font-semibold text-slate-600 mb-2">Algorithm&apos;s Prediction</h3>
                     <p className="text-3xl font-bold">{Math.round(feedback.algorithmPrediction).toLocaleString()}</p>
                     <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.algorithmError).toLocaleString()}</p>
                     <p className="text-sm text-blue-600 mt-1">Confidence: {Math.round(feedback.algorithmConfidence)}%</p>
