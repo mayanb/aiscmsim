@@ -62,20 +62,6 @@ export const getMarketSegment = (traffic: number | null): string | null => {
 };
 
 
-// // Example of how to use in a component
-// export const enrichItemWithDerivedData = (item: Item) => {
-//     return {
-//         ...item,
-//         market_segment: getMarketSegment(item.online_traffic),
-//         algorithm_confidence: calculateAlgorithmConfidence(
-//             item.online_traffic,
-//             item.advertising_spend,
-//             item.phase
-//         )
-//     };
-// };
-
-
 export const generateSessionItems = (sessionId: number, increaseDigitalLikelihood: boolean, 
     numPhaseDecisions: number[] = [GAME_CONFIG.PHASE_1_DECISIONS, GAME_CONFIG.PHASE_2_DECISIONS, GAME_CONFIG.PHASE_3_DECISIONS, GAME_CONFIG.PHASE_4_DECISIONS]
 ): Item[] => {
@@ -90,28 +76,6 @@ export const generateSessionItems = (sessionId: number, increaseDigitalLikelihoo
         const temperature = Math.round(random.normal(base_temp, 8));
         return { last_year_sales, month, temperature };
     };
-
-    // const generatePhase4Features = (decisionNumber: number, increaseDigitalLikelihood: boolean): Phase4Features => {
-    //     const segment_type = random.random();
-    //     let online_traffic: number;
-        
-    //     if (segment_type < 0.3) {  // Digital-First segment
-    //         online_traffic = Math.round(random.normal(2000, 200));
-    //     } else if (segment_type < 0.7) {  // Mixed segment
-    //         online_traffic = Math.round(random.normal(1250, 150));
-    //     } else {  // Traditional segment
-    //         online_traffic = Math.round(random.normal(800, 100));
-    //     }
-        
-    //     const base_advertising = 100 + (online_traffic - 800) / 10;
-    //     const advertising_spend = Math.max(50, Math.round(random.normal(base_advertising, 15)));
-        
-    //     return {
-    //         online_traffic,
-    //         advertising_spend
-    //     };
-    // }
-
 
 
     const generatePhase4Features = (decisionNumber: number, increaseDigital: boolean): Phase4Features => {
@@ -202,20 +166,6 @@ export const generateSessionItems = (sessionId: number, increaseDigitalLikelihoo
 };
 
 
-
-// // Function to calculate algorithm's prediction
-// export const calculateAlgorithmPrediction = (
-//     last_year_sales: number,
-//     month: number,
-//     temperature: number
-// ): number => {
-//     // Simplified linear model
-//     const seasonal = Math.cos(2 * Math.PI * (month - 11) / 12);
-//     const tempEffect = -2.0 * Math.pow(temperature - 70, 2) / 50;
-    
-//     return Math.round(0.9 * last_year_sales + 300 * seasonal + tempEffect);
-// };
-
 // Helper function to calculate demand
 export const calculateDemand = (
     random: SeededRandom,
@@ -258,7 +208,7 @@ export const calculateDemand = (
     }
 
     // Base noise and final adjustments
-    demand += random.normal(0, 30);
+    demand += random.normal(0, 15);
     return Math.round(Math.max(0, demand));
 };
 
@@ -287,11 +237,11 @@ const calculateAlgorithmPrediction = (
         }
         
         // Add some noise to prediction
-        prediction += random.normal(0, 50);
+        prediction += random.normal(0, 15);
     }
 
     if (phase < 4) {
-        prediction += random.normal(0, 15);
+        prediction += random.normal(0, 5);
     }
     
     return Math.round(Math.max(0, prediction));

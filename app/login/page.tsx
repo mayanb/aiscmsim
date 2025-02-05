@@ -3,11 +3,29 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { format } from 'date-fns'
 
 interface Session {
   id: string;
   name: string;
   is_active: boolean;
+}
+
+interface ExistingPlayer {
+  id: string;
+  phase: number;
+  current_decision: number;
+  created_at: string;
 }
 
 export default function StudentLoginPage() {
@@ -17,7 +35,8 @@ export default function StudentLoginPage() {
   const [studentName, setStudentName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-//   const [debugInfo, setDebugInfo] = useState<string>('')
+  const [showPlayerExists, setShowPlayerExists] = useState(false)
+  const [existingPlayers, setExistingPlayers] = useState<ExistingPlayer[]>([])
 
   // Load active sessions
   useEffect(() => {
@@ -36,30 +55,46 @@ export default function StudentLoginPage() {
       return
     }
 
-    console.log('Sessions loaded:', data)
     setSessions(data || [])
   }
 
-
-  // Handle join session
-  const joinSession = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    
-    if (!selectedSession) {
-      setError('Please select a session')
-      return
-    }
-
-    if (!studentName.trim()) {
-      setError('Please enter your name')
-      return
-    }
-
+  const handleExistingPlayerContinue = async (playerId: string) => {
     setLoading(true)
-
     try {
-      // First, create the player
+      // Set cookies
+      document.cookie = `sessionId=${selectedSession}; path=/`
+      document.cookie = `playerId=${playerId}; path=/`
+
+      // Get player's latest progress
+      const { data: progress } = await supabase
+        .from('player_progress')
+        .select('phase')
+        .eq('player_id', playerId)
+        .order('phase', { ascending: false })
+        .order('current_decision', { ascending: false })
+        .limit(1)
+        .single()
+
+      // Close dialog
+      setShowPlayerExists(false)
+
+      // Redirect to their current phase
+      if (progress) {
+        router.push(`/phase${progress.phase}`)
+      } else {
+        router.push('/phase1')
+      }
+    } catch (err) {
+      console.error('Error continuing session:', err)
+      setError('Failed to continue session. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  const createNewPlayer = async () => {
+    setLoading(true)
+    try {
+      // Create new player
       const { data: player, error: playerError } = await supabase
         .from('players')
         .insert([
@@ -72,7 +107,7 @@ export default function StudentLoginPage() {
         .single()
 
       if (playerError) {
-        throw playerError;
+        throw playerError
       }
 
       // Check for existing items
@@ -82,7 +117,7 @@ export default function StudentLoginPage() {
         .eq('session_id', selectedSession)
 
       if (countError) {
-        throw countError;
+        throw countError
       }
 
       // If no items exist, generate them through the API
@@ -119,6 +154,73 @@ export default function StudentLoginPage() {
 
       // Redirect to Phase 1
       router.push('/phase1')
+    } catch (err: any) {
+      console.error('Error creating new player:', err)
+      setError('Failed to create new player. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  // Handle join session
+  const joinSession = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    
+    if (!selectedSession) {
+      setError('Please select a session')
+      return
+    }
+
+    if (!studentName.trim()) {
+      setError('Please enter your name')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      // First get matching players
+      const { data: matchingPlayers, error: playersError } = await supabase
+        .from('players')
+        .select('id, created_at')
+        .eq('name', studentName.trim())
+        .eq('session_id', selectedSession)
+
+      if (playersError) throw playersError
+
+      if (matchingPlayers && matchingPlayers.length > 0) {
+        // Then get the latest progress for each player
+        const playersWithProgress = await Promise.all(
+          matchingPlayers.map(async (player) => {
+            const { data: progress } = await supabase
+              .from('player_progress')
+              .select('phase, current_decision')
+              .eq('player_id', player.id)
+              .order('phase', { ascending: false })
+              .order('current_decision', { ascending: false })
+              .limit(1)
+              .single()
+
+            return {
+              id: player.id,
+              created_at: player.created_at,
+              phase: progress?.phase || 1,
+              current_decision: progress?.current_decision || 1
+            }
+          })
+        )
+
+        setExistingPlayers(playersWithProgress)
+
+        setExistingPlayers(playersWithProgress)
+        setShowPlayerExists(true)
+        setLoading(false)
+        return
+      }
+
+      // No existing player, create new one
+      await createNewPlayer()
+
     } catch (err: any) {
       console.error('Error joining session:', err)
       setError('Failed to join session. Please try again.')
@@ -164,6 +266,12 @@ export default function StudentLoginPage() {
           />
         </div>
 
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <button
           type="submit"
           disabled={loading}
@@ -174,6 +282,46 @@ export default function StudentLoginPage() {
           {loading ? 'Joining...' : 'Join Session'}
         </button>
       </form>
+
+      <Dialog open={showPlayerExists} onOpenChange={setShowPlayerExists}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Players Found</DialogTitle>
+            <DialogDescription>
+              We found {existingPlayers.length} player(s) with the name "{studentName}" in this session. 
+              Please select your account or create a new one.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {existingPlayers.map((player) => (
+              <div key={player.id} className="p-4 border rounded-lg">
+                <p className="text-sm text-gray-600">Created: {format(new Date(player.created_at), 'MMM d, yyyy h:mm a')}</p>
+                <p>Currently on: Phase {player.phase}, Decision {player.current_decision}</p>
+                <Button 
+                  onClick={() => handleExistingPlayerContinue(player.id)}
+                  className="mt-2"
+                >
+                  Continue as this player
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          <DialogFooter className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowPlayerExists(false)
+                setStudentName('')
+                setLoading(false)
+              }}
+            >
+              Create New Player
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
