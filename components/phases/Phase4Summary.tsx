@@ -128,7 +128,7 @@ const Phase4Summary: React.FC<Phase4SummaryProps> = ({ sessionId, playerId }) =>
     <div className="space-y-8 max-w-7xl mx-auto">
       <Alert className="bg-blue-50">
         <AlertDescription className="text-lg">
-          Phase 4 Complete! Let's analyze how you performed with the algorithm&apos;s predictions and confidence scores in the context of our digital transformation.
+          Phase 4 Complete! Let&apos;s analyze how you performed with the algorithm&apos;s predictions and confidence scores in the context of our digital transformation.
         </AlertDescription>
       </Alert>
 

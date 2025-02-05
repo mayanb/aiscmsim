@@ -66,11 +66,11 @@ const Phase4Intro: React.FC<Phase4IntroProps> = ({ onBeginPhase4 }) => {
             </p>
             <p>
               Your retail division has been performing well, and the company has decided to increase its 
-              investment in digital marketing and e-commerce. Over the past month, we've launched targeted 
+              investment in digital marketing and e-commerce. Over the past month, we&apos;ve launched targeted 
               advertising campaigns and revamped our online store to drive more traffic to our product pages.
             </p>
             <p>
-              Our data science team has been monitoring the algorithm's performance, and they've noticed some 
+              Our data science team has been monitoring the algorithm&apos;s performance, and they've noticed some 
               interesting patterns. While the algorithm continues to be a valuable tool, its performance seems 
               to vary across different market conditions.
             </p>
