@@ -70,12 +70,12 @@ const Phase4Intro: React.FC<Phase4IntroProps> = ({ onBeginPhase4 }) => {
               advertising campaigns and revamped our online store to drive more traffic to our product pages.
             </p>
             <p>
-              Our data science team has been monitoring the algorithm&apos;s performance, and they've noticed some 
+              Our data science team has been monitoring the algorithm&apos;s performance, and they&apos;ve noticed some 
               interesting patterns. While the algorithm continues to be a valuable tool, its performance seems 
               to vary across different market conditions.
             </p>
             <p>
-              You'll now have access to two new metrics:
+              You&apos;ll now have access to two new metrics:
             </p>
             <ul className="list-disc list-inside ml-4">
               <li>Online Traffic: The number of daily visits to each product&apos;s page</li>

@@ -83,29 +83,29 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
     return null;
   };
 
-  const fetchCurrentItem = async (decision: number) => {
-    try {
-      const { data, error } = await supabase
-        .from('items')
-        .select('*')
-        .eq('phase', 4)
-        .eq('decision_number', decision)
-        .eq('session_id', sessionId)
-        .single();
+  // const fetchCurrentItem = async (decision: number) => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('items')
+  //       .select('*')
+  //       .eq('phase', 4)
+  //       .eq('decision_number', decision)
+  //       .eq('session_id', sessionId)
+  //       .single();
 
-      if (error) throw error;
+  //     if (error) throw error;
 
-      let algorithm_confidence = calculateAlgorithmConfidence(
-        random, data.online_traffic, data.advertising_spend, 4)
-        data.algorithm_confidence = algorithm_confidence
+  //     let algorithm_confidence = calculateAlgorithmConfidence(
+  //       random, data.online_traffic, data.advertising_spend, 4)
+  //       data.algorithm_confidence = algorithm_confidence
 
-      setCurrentItem(data);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching item:', err);
-      setLoading(false);
-    }
-  };
+  //     setCurrentItem(data);
+  //     setLoading(false);
+  //   } catch (err) {
+  //     console.error('Error fetching item:', err);
+  //     setLoading(false);
+  //   }
+  // };
 
   const saveProgress = async (decision: number) => {
     try {
@@ -154,7 +154,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
           } else {
             setCurrentDecision(savedDecision);
             const currentItem = items?.find(item => item.decision_number === savedDecision);
-            let algorithm_confidence = calculateAlgorithmConfidence(
+            const algorithm_confidence = calculateAlgorithmConfidence(
                 random, currentItem.online_traffic, currentItem.advertising_spend, 4)
             currentItem.algorithm_confidence = algorithm_confidence
             
@@ -166,7 +166,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
           }
         } else {
           const firstItem = items?.find(item => item.decision_number === 1);
-          let algorithm_confidence = calculateAlgorithmConfidence(
+          const algorithm_confidence = calculateAlgorithmConfidence(
             random, firstItem.online_traffic, firstItem.advertising_spend, 4)
             firstItem.algorithm_confidence = algorithm_confidence
 
@@ -195,7 +195,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
           player_prediction: Number(prediction)
         });
 
-      let algorithm_confidence = calculateAlgorithmConfidence(
+      const algorithm_confidence = calculateAlgorithmConfidence(
                 random, currentItem.online_traffic, currentItem.advertising_spend, 4)
 
 
@@ -237,7 +237,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
       const nextItem = allItems.find(item => item.decision_number === nextDecision);
       
       if (nextItem) {
-        let algorithm_confidence = calculateAlgorithmConfidence(
+        const algorithm_confidence = calculateAlgorithmConfidence(
           random, nextItem.online_traffic, nextItem.advertising_spend, 4);
         nextItem.algorithm_confidence = algorithm_confidence;
       }

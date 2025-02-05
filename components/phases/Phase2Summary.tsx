@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ScatterChart, Scatter, ZAxis } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ScatterChart, Scatter } from 'recharts';
 import { supabase } from '../../lib/supabase';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
@@ -21,15 +21,15 @@ interface PlayerDecisionResponse {
   };
 }
 
-interface ClassDecisionResponse {
-  player_prediction: number;
-  items: {
-    id: string;
-    decision_number: number;
-    actual_demand: number;
-    algorithm_prediction: number;
-  };
-}
+// interface ClassDecisionResponse {
+//   player_prediction: number;
+//   items: {
+//     id: string;
+//     decision_number: number;
+//     actual_demand: number;
+//     algorithm_prediction: number;
+//   };
+// }
 
 interface DecisionData {
   decision_number: number;

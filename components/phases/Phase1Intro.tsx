@@ -5,17 +5,15 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { GAME_CONFIG } from '../../config';
 
 interface Phase1IntroProps {
-  sessionId: string;
-  playerId: string;
   onBeginPhase1: () => void;
 }
 
-const Phase1Intro: React.FC<Phase1IntroProps> = ({ sessionId, playerId, onBeginPhase1 }) => {
+const Phase1Intro: React.FC<Phase1IntroProps> = ({ onBeginPhase1 }) => {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       <Alert className="bg-blue-50">
         <AlertDescription className="text-lg">
-          Welcome to your first task as a demand planner! You'll be making predictions about product demand based on historical data and other factors.
+          Welcome to your first task as a demand planner! You&apos;ll be making predictions about product demand based on historical data and other factors.
         </AlertDescription>
       </Alert>
 

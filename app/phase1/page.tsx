@@ -49,8 +49,6 @@ export default function Phase1Page() {
     <div className="container mx-auto py-8">
       {showIntro ? (
         <Phase1Intro
-          sessionId={sessionId}
-          playerId={playerId}
           onBeginPhase1={handleBeginPhase1}
         />
       ) : (

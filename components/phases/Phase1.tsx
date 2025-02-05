@@ -134,6 +134,7 @@ const Phase1: React.FC<Phase1Props> = ({ sessionId, playerId }) => {
       });
       
       const data = await response.json();
+      console.log(data)
       
       const absoluteError = Math.abs(currentItem.actual_demand - Number(prediction));
       const percentError = (absoluteError / currentItem.actual_demand) * 100;

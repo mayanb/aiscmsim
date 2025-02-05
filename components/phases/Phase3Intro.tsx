@@ -103,8 +103,8 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
       <Alert className="bg-blue-50">
         <AlertDescription className="text-lg space-y-4">
           <p>
-            Welcome to Phase 3! This time, you'll be able to observe some additional private information 
-            that the company's algorithm does not have access to.
+            Welcome to Phase 3! This time, you&apos;ll be able to observe some additional private information 
+            that the company&apos;s algorithm does not have access to.
           </p>
           <p>
             You&apos;ve started polling focus groups on how much they like each product. From them, you calculate 
@@ -112,7 +112,7 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
           </p>
           <p>
             You&apos;ve shown the focus groups the products that you just made forecasts for and obtained their 
-            sentiment scores for those products. Look at the data below and see how the focus group's 
+            sentiment scores for those products. Look at the data below and see how the focus group&apos;s 
             sentiment score might be helpful in making your own demand predictions or in adjusting the 
             algorithm&apos;s demand predictions.
           </p>

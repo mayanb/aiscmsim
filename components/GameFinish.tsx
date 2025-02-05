@@ -134,7 +134,7 @@ const GameFinish: React.FC<GameFinishProps> = ({ sessionId, playerId }) => {
                 
                 // phase 4
 
-                let algorithm_confidence = calculateAlgorithmConfidence(
+                const algorithm_confidence = calculateAlgorithmConfidence(
                     random, item.online_traffic, item.advertising_spend, 4)
                 item.algorithm_confidence = algorithm_confidence
                 

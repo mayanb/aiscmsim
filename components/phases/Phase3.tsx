@@ -73,24 +73,24 @@ const Phase3: React.FC<Phase3Props> = ({ sessionId, playerId }) => {
     return null;
   };
 
-  const fetchCurrentItem = async (decision: number) => {
-    try {
-      const { data, error } = await supabase
-        .from('items')
-        .select('*')
-        .eq('phase', 3)
-        .eq('decision_number', decision)
-        .eq('session_id', sessionId)
-        .single();
+  // const fetchCurrentItem = async (decision: number) => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('items')
+  //       .select('*')
+  //       .eq('phase', 3)
+  //       .eq('decision_number', decision)
+  //       .eq('session_id', sessionId)
+  //       .single();
 
-      if (error) throw error;
-      setCurrentItem(data);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching item:', err);
-      setLoading(false);
-    }
-  };
+  //     if (error) throw error;
+  //     setCurrentItem(data);
+  //     setLoading(false);
+  //   } catch (err) {
+  //     console.error('Error fetching item:', err);
+  //     setLoading(false);
+  //   }
+  // };
 
 
   // Save progress
@@ -212,16 +212,16 @@ const saveProgress = async (decision: number) => {
     }
   };
 
-  // Helper functions for calculating averages
-const calculateAverageError = (data: PerformanceData[]) => {
-    if (!data || data.length === 0) return 0;
-    return Math.round(data.reduce((sum, d) => sum + d.playerError, 0) / data.length);
-  };
+//   // Helper functions for calculating averages
+// const calculateAverageError = (data: PerformanceData[]) => {
+//     if (!data || data.length === 0) return 0;
+//     return Math.round(data.reduce((sum, d) => sum + d.playerError, 0) / data.length);
+//   };
   
-  const calculateAlgorithmAverageError = (data: PerformanceData[]) => {
-    if (!data || data.length === 0) return 0;
-    return Math.round(data.reduce((sum, d) => sum + d.algorithmError, 0) / data.length);
-  };
+//   const calculateAlgorithmAverageError = (data: PerformanceData[]) => {
+//     if (!data || data.length === 0) return 0;
+//     return Math.round(data.reduce((sum, d) => sum + d.algorithmError, 0) / data.length);
+//   };
 
   const handleNext = async () => {
     if (!feedback) return;

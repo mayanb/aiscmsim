@@ -70,24 +70,24 @@ const Phase2: React.FC<Phase2Props> = ({ sessionId, playerId }) => {
     return null;
   };
 
-  const fetchCurrentItem = async (decision: number) => {
-    try {
-      const { data, error } = await supabase
-        .from('items')
-        .select('*')
-        .eq('phase', 2)
-        .eq('decision_number', decision)
-        .eq('session_id', sessionId)
-        .single();
+  // const fetchCurrentItem = async (decision: number) => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('items')
+  //       .select('*')
+  //       .eq('phase', 2)
+  //       .eq('decision_number', decision)
+  //       .eq('session_id', sessionId)
+  //       .single();
 
-      if (error) throw error;
-      setCurrentItem(data);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching item:', err);
-      setLoading(false);
-    }
-  };
+  //     if (error) throw error;
+  //     setCurrentItem(data);
+  //     setLoading(false);
+  //   } catch (err) {
+  //     console.error('Error fetching item:', err);
+  //     setLoading(false);
+  //   }
+  // };
 
 
   // Save progress
