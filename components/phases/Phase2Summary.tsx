@@ -5,6 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { supabase } from '../../lib/supabase';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
+import { GAME_CONFIG } from '../../config';  // Adjust path as needed
 
 interface Phase2SummaryProps {
   sessionId: string;

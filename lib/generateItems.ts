@@ -76,7 +76,9 @@ export const getMarketSegment = (traffic: number | null): string | null => {
 // };
 
 
-export const generateSessionItems = (sessionId: number, increaseDigitalLikelihood: boolean): Item[] => {
+export const generateSessionItems = (sessionId: number, increaseDigitalLikelihood: boolean, 
+    numPhaseDecisions: number[] = [GAME_CONFIG.PHASE_1_DECISIONS, GAME_CONFIG.PHASE_2_DECISIONS, GAME_CONFIG.PHASE_3_DECISIONS, GAME_CONFIG.PHASE_4_DECISIONS]
+): Item[] => {
     const random = new SeededRandom(sessionId);
     const items: Item[] = [];
     
@@ -124,7 +126,7 @@ export const generateSessionItems = (sessionId: number, increaseDigitalLikelihoo
             // Increase digital probability from 30% to 60% over the decisions
             // Decrease traditional probability from 30% to 10%
             // Keep mixed relatively stable, adjusting only slightly from 40% to 30%
-            const maxDecisions = GAME_CONFIG.PHASE_4_DECISIONS;
+            const maxDecisions = numPhaseDecisions[3];
             const progressRatio = (decisionNumber - 1) / (maxDecisions - 1);
             
             // Increase digital probability linearly from 0.3 to 0.6
@@ -160,10 +162,9 @@ export const generateSessionItems = (sessionId: number, increaseDigitalLikelihoo
 
     // Generate items for all phases
     [1, 2, 3, 4].forEach(phase => {
-        const numDecisions = phase === 1 ? GAME_CONFIG.PHASE_1_DECISIONS : 
-                           phase === 2 ? GAME_CONFIG.PHASE_2_DECISIONS : 
-                           phase === 3 ? GAME_CONFIG.PHASE_3_DECISIONS : GAME_CONFIG.PHASE_4_DECISIONS;
-                        //    phase === 4 ? GAME_CONFIG.PHASE_4_DECISIONS : GAME_CONFIG.PHASE_5_DECISIONS;
+        const numDecisions = phase === 1 ? numPhaseDecisions[0] : 
+                           phase === 2 ? numPhaseDecisions[1] : 
+                           phase === 3 ? numPhaseDecisions[2] : numPhaseDecisions[3];
 
         for (let i = 0; i < numDecisions; i++) {
             const base = generateBaseFeatures();
