@@ -133,7 +133,7 @@ const router = useRouter();
     <div className="space-y-8 max-w-7xl mx-auto">
       <Alert className="bg-blue-50">
         <AlertDescription className="text-lg">
-          Phase 2 Complete! Let's analyze how you performed with the algorithm's assistance.
+          Phase 2 Complete! Let's analyze how you performed with the algorithm&apos;s assistance.
         </AlertDescription>
       </Alert>
 

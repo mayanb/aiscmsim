@@ -114,7 +114,7 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
             You've shown the focus groups the products that you just made forecasts for and obtained their 
             sentiment scores for those products. Look at the data below and see how the focus group's 
             sentiment score might be helpful in making your own demand predictions or in adjusting the 
-            algorithm's demand predictions.
+            algorithm&apos;s demand predictions.
           </p>
         </AlertDescription>
       </Alert>
@@ -179,7 +179,7 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
             </div>
 
             <div className="h-96">
-              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm's Prediction Error</h3>
+              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm&apos;s Prediction Error</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 5, right: 20, bottom: 45, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />

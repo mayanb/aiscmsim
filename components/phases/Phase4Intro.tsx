@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { generateSessionItems, getMarketSegment, calculateAlgorithmConfidence, SeededRandom } from '../../lib/generateItems';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ScatterChart, Scatter } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter } from 'recharts';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Phase4IntroProps {
@@ -78,7 +78,7 @@ const Phase4Intro: React.FC<Phase4IntroProps> = ({ onBeginPhase4 }) => {
               You'll now have access to two new metrics:
             </p>
             <ul className="list-disc list-inside ml-4">
-              <li>Online Traffic: The number of daily visits to each product's page</li>
+              <li>Online Traffic: The number of daily visits to each product&apos;s page</li>
               <li>Advertising Spend: Our current investment in promoting each product</li>
             </ul>
             <p>

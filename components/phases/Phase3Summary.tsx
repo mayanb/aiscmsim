@@ -107,7 +107,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
     <div className="space-y-8 max-w-7xl mx-auto">
       <Alert className="bg-blue-50">
         <AlertDescription className="text-lg">
-          Phase 3 Complete! Let's analyze how you performed using both the algorithm's predictions and the focus group sentiment data.
+          Phase 3 Complete! Let's analyze how you performed using both the algorithm&apos;s predictions and the focus group sentiment data.
         </AlertDescription>
       </Alert>
 
