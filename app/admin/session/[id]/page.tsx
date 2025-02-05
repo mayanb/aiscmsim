@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react';
 import { supabase } from '../../../../lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -59,10 +59,11 @@ interface PhaseData {
 }
 
 type Props = {
-    params: {id: string}
+    params: Promise<{id: string}>
 };
 
-export default function SessionSummaryPage({ params }: Props) {
+export default function SessionSummaryPage(props: Props) {
+  const params = use(props.params);
   const sessionId = Number(params.id);
   const [sessionName, setSessionName] = useState<string>('')
   const [playerSummaries, setPlayerSummaries] = useState<PlayerSummary[]>([])
@@ -73,182 +74,182 @@ export default function SessionSummaryPage({ params }: Props) {
   const [loading, setLoading] = useState(true)
 
 
-    // Single useEffect for initial data load
-    useEffect(() => {
-        const initializeData = async () => {
-        await fetchSessionData();
-        await fetchPhaseData(selectedPhase);
-        };
+  // Single useEffect for initial data load
+  useEffect(() => {
+      const initializeData = async () => {
+      await fetchSessionData();
+      await fetchPhaseData(selectedPhase);
+      };
 
-        initializeData();
-    }, [params.id]); // Depend on params.id directly
+      initializeData();
+  }, [params.id]); // Depend on params.id directly
 
-    // Phase change effect
-    useEffect(() => {
-        fetchPhaseData(selectedPhase);
-    }, [selectedPhase]);
-
-
-    const fetchSessionData = async () => {
-        try {
-          // Fetch session name
-          const { data: session } = await supabase
-            .from('sessions')
-            .select('name')
-            .eq('id', sessionId)
-            .single();
-      
-          if (session) {
-            setSessionName(session.name)
-          }
-      
-        // Get MAEs by phase for each player
-        const { data } = await supabase
-        .from('decisions')
-        .select(`
-          player_id,
-          player_prediction,
-          items!inner (
-            phase,
-            actual_demand,
-            session_id
-          ),
-          players!inner (
-            id,
-            name
-          )
-        `)
-        .eq('items.session_id', sessionId) as unknown as { data: Decision[] };
-      
-              
-        console.log('Data:', data);
-
-          if (!data) return;
-      
-          const playerSummaries = data.reduce<PlayerMAEAccumulator>((acc, decision) => {
-            const playerId = typeof decision.player_id === 'string' 
-                ? parseInt(decision.player_id) 
-                : decision.player_id;
-                
-            if (!acc[playerId]) {
-              acc[playerId] = {
-                player_id: playerId,
-                name: decision.players.name, 
-                phase1_mae: 0,
-                phase2_mae: 0,
-                phase3_mae: 0,
-                phase4_mae: 0,
-                phase1_count: 0,
-                phase2_count: 0,
-                phase3_count: 0,
-                phase4_count: 0,
-                phase1_total: 0,
-                phase2_total: 0,
-                phase3_total: 0,
-                phase4_total: 0,
-              };
-            }
-      
-            const phase = decision.items.phase; // Access phase directly from items object
-            const error = Math.abs(decision.player_prediction - decision.items.actual_demand);
-            
-            const totalKey = `phase${phase}_total` as PhaseKey;
-            const countKey = `phase${phase}_count` as PhaseKey;
-            const maeKey = `phase${phase}_mae` as PhaseKey;
-      
-            acc[playerId][totalKey] += error;
-            acc[playerId][countKey] += 1;
-            acc[playerId][maeKey] = acc[playerId][totalKey] / acc[playerId][countKey];
-      
-            return acc;
-          }, {});
-      
-          setPlayerSummaries(Object.values(playerSummaries));
-          setLoading(false);
-      
-        } catch (error) {
-          console.error('Error fetching session data:', error)
-          setLoading(false)
-        }
-      }    
-
-const fetchPhaseData = async (phase: string) => {
-    try {
-      // Fetch all decisions for this phase
-      const { data: decisions } = await supabase
-        .from('decisions')
-        .select(`
-          *,
-          items!inner(
-            phase,
-            decision_number,
-            actual_demand,
-            algorithm_prediction
-          )
-        `)
-        .eq('items.session_id', sessionId)
-        .eq('items.phase', phase)
-
-      if (!decisions) return
-
-      // Process data for visualization
-      const processedData: { [key: number]: PhaseData } = {}
-
-      decisions.forEach(decision => {
-        const decisionNumber = decision.items.decision_number
-        if (!processedData[decisionNumber]) {
-          processedData[decisionNumber] = {
-            decision_number: decisionNumber,
-            actual_demand: decision.items.actual_demand,
-            class_average: 0,
-            best_student: 0,
-            worst_student: 0, 
-            algorithm_prediction: decision.items.algorithm_prediction
-          }
-        }
-
-        // Update class average
-        const currentCount = processedData[decisionNumber].class_average === 0 ? 0 : 1
-        processedData[decisionNumber].class_average = 
-          (processedData[decisionNumber].class_average * currentCount + decision.player_prediction) / (currentCount + 1)
-      })
-
-      // Find best student
-      const playerErrors: { [key: string]: number } = {}
-      decisions.forEach(decision => {
-        const error = Math.abs(decision.player_prediction - decision.items.actual_demand)
-        if (!playerErrors[decision.player_id]) {
-          playerErrors[decision.player_id] = error
-        } else {
-          playerErrors[decision.player_id] += error
-        }
-      })
-
-      const sortedPlayerErrors = Object.entries(playerErrors).sort(([, a], [, b]) => a - b)
-      const bestStudent = sortedPlayerErrors[0][0]
-      const worstStudent = sortedPlayerErrors[sortedPlayerErrors.length - 1][0]
+  // Phase change effect
+  useEffect(() => {
+      fetchPhaseData(selectedPhase);
+  }, [selectedPhase]);
 
 
-      // Add best student's predictions
-      decisions
-        .filter(d => d.player_id === bestStudent)
-        .forEach(d => {
-          processedData[d.items.decision_number].best_student = d.player_prediction
-        })
-
-        // Add worst student's predictions
-        decisions
-        .filter(d => d.player_id === worstStudent)
-        .forEach(d => {
-            processedData[d.items.decision_number].worst_student = d.player_prediction
-        })
+  const fetchSessionData = async () => {
+      try {
+        // Fetch session name
+        const { data: session } = await supabase
+          .from('sessions')
+          .select('name')
+          .eq('id', sessionId)
+          .single();
     
+        if (session) {
+          setSessionName(session.name)
+        }
+    
+      // Get MAEs by phase for each player
+      const { data } = await supabase
+      .from('decisions')
+      .select(`
+        player_id,
+        player_prediction,
+        items!inner (
+          phase,
+          actual_demand,
+          session_id
+        ),
+        players!inner (
+          id,
+          name
+        )
+      `)
+      .eq('items.session_id', sessionId) as unknown as { data: Decision[] };
+    
+            
+      console.log('Data:', data);
 
-      setPhaseData(Object.values(processedData).sort((a, b) => a.decision_number - b.decision_number))
-    } catch (error) {
-      console.error('Error fetching phase data:', error)
+        if (!data) return;
+    
+        const playerSummaries = data.reduce<PlayerMAEAccumulator>((acc, decision) => {
+          const playerId = typeof decision.player_id === 'string' 
+              ? parseInt(decision.player_id) 
+              : decision.player_id;
+              
+          if (!acc[playerId]) {
+            acc[playerId] = {
+              player_id: playerId,
+              name: decision.players.name, 
+              phase1_mae: 0,
+              phase2_mae: 0,
+              phase3_mae: 0,
+              phase4_mae: 0,
+              phase1_count: 0,
+              phase2_count: 0,
+              phase3_count: 0,
+              phase4_count: 0,
+              phase1_total: 0,
+              phase2_total: 0,
+              phase3_total: 0,
+              phase4_total: 0,
+            };
+          }
+    
+          const phase = decision.items.phase; // Access phase directly from items object
+          const error = Math.abs(decision.player_prediction - decision.items.actual_demand);
+          
+          const totalKey = `phase${phase}_total` as PhaseKey;
+          const countKey = `phase${phase}_count` as PhaseKey;
+          const maeKey = `phase${phase}_mae` as PhaseKey;
+    
+          acc[playerId][totalKey] += error;
+          acc[playerId][countKey] += 1;
+          acc[playerId][maeKey] = acc[playerId][totalKey] / acc[playerId][countKey];
+    
+          return acc;
+        }, {});
+    
+        setPlayerSummaries(Object.values(playerSummaries));
+        setLoading(false);
+    
+      } catch (error) {
+        console.error('Error fetching session data:', error)
+        setLoading(false)
+      }
     }
-  }
+
+  const fetchPhaseData = async (phase: string) => {
+      try {
+        // Fetch all decisions for this phase
+        const { data: decisions } = await supabase
+          .from('decisions')
+          .select(`
+            *,
+            items!inner(
+              phase,
+              decision_number,
+              actual_demand,
+              algorithm_prediction
+            )
+          `)
+          .eq('items.session_id', sessionId)
+          .eq('items.phase', phase)
+
+        if (!decisions) return
+
+        // Process data for visualization
+        const processedData: { [key: number]: PhaseData } = {}
+
+        decisions.forEach(decision => {
+          const decisionNumber = decision.items.decision_number
+          if (!processedData[decisionNumber]) {
+            processedData[decisionNumber] = {
+              decision_number: decisionNumber,
+              actual_demand: decision.items.actual_demand,
+              class_average: 0,
+              best_student: 0,
+              worst_student: 0, 
+              algorithm_prediction: decision.items.algorithm_prediction
+            }
+          }
+
+          // Update class average
+          const currentCount = processedData[decisionNumber].class_average === 0 ? 0 : 1
+          processedData[decisionNumber].class_average = 
+            (processedData[decisionNumber].class_average * currentCount + decision.player_prediction) / (currentCount + 1)
+        })
+
+        // Find best student
+        const playerErrors: { [key: string]: number } = {}
+        decisions.forEach(decision => {
+          const error = Math.abs(decision.player_prediction - decision.items.actual_demand)
+          if (!playerErrors[decision.player_id]) {
+            playerErrors[decision.player_id] = error
+          } else {
+            playerErrors[decision.player_id] += error
+          }
+        })
+
+        const sortedPlayerErrors = Object.entries(playerErrors).sort(([, a], [, b]) => a - b)
+        const bestStudent = sortedPlayerErrors[0][0]
+        const worstStudent = sortedPlayerErrors[sortedPlayerErrors.length - 1][0]
+
+
+        // Add best student's predictions
+        decisions
+          .filter(d => d.player_id === bestStudent)
+          .forEach(d => {
+            processedData[d.items.decision_number].best_student = d.player_prediction
+          })
+
+          // Add worst student's predictions
+          decisions
+          .filter(d => d.player_id === worstStudent)
+          .forEach(d => {
+              processedData[d.items.decision_number].worst_student = d.player_prediction
+          })
+      
+
+        setPhaseData(Object.values(processedData).sort((a, b) => a.decision_number - b.decision_number))
+      } catch (error) {
+        console.error('Error fetching phase data:', error)
+      }
+    }
 
   const handleSort = (field: keyof PlayerSummary) => {
     if (field === sortField) {
