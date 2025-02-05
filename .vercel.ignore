@@ -1,0 +1,8 @@
+# Ignore TypeScript error files
+*.tsbuildinfo
+# Ignore test files
+*.test.*
+*.spec.*
+# Ignore development configuration files
+.eslintrc*
+.prettierrc*
