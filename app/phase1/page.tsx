@@ -5,45 +5,51 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { GAME_CONFIG } from '../../config';
 
-// Use dynamic imports with no SSR to avoid hydration issues
 const Phase1Intro = dynamic(() => import('../../components/phases/Phase1Intro'), { ssr: false });
 const Phase1 = dynamic(() => import('../../components/phases/Phase1'), { ssr: false });
 
 export default function Phase1Page() {
   const router = useRouter();
   const [showIntro, setShowIntro] = useState(true);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [playerId, setPlayerId] = useState<string | null>(null);
   
-  // Get cookies
-  const getCookie = (name: string) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-  };
-
-  const sessionId = getCookie('sessionId');
-  const playerId = getCookie('playerId');
-
   useEffect(() => {
-    if (!sessionId || !playerId) {
+    // Move cookie logic into useEffect
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+    };
+
+    const sid = getCookie('sessionId');
+    const pid = getCookie('playerId');
+
+    setSessionId(sid || null);
+    setPlayerId(pid || null);
+
+    if (!sid || !pid) {
       router.push('/login');
       return;
     }
+
     // Check if user has already seen the intro
-    const hasSeenIntro = localStorage.getItem(`phase1Intro_${playerId}`);
+    const hasSeenIntro = localStorage.getItem(`phase1Intro_${pid}`);
     if (hasSeenIntro) {
       setShowIntro(false);
     }
-  }, [sessionId, playerId, router]);
+  }, [router]);
+
+  const handleBeginPhase1 = () => {
+    if (playerId) {
+      localStorage.setItem(`phase1Intro_${playerId}`, 'true');
+      setShowIntro(false);
+    }
+  };
 
   if (!sessionId || !playerId) {
     return null;
   }
-
-  const handleBeginPhase1 = () => {
-    // Store that user has seen the intro
-    localStorage.setItem(`phase1Intro_${playerId}`, 'true');
-    setShowIntro(false);
-  };
 
   return (
     <div className="container mx-auto py-8">

@@ -236,7 +236,7 @@ const calculateAlgorithmPrediction = (
         }
         
         // Add some noise to prediction
-        prediction += random.normal(0, 15);
+        prediction += random.normal(0, 10);
     }
 
     if (phase < 4) {
