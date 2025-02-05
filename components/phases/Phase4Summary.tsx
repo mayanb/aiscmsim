@@ -74,7 +74,7 @@ const Phase4Summary: React.FC<Phase4SummaryProps> = ({ sessionId, playerId }) =>
           const playerDecision = playerDecisions.find(d => d.item_id === item.id);
           const player_prediction = playerDecision?.player_prediction || 0;
 
-          let algorithm_confidence = calculateAlgorithmConfidence(
+          const algorithm_confidence = calculateAlgorithmConfidence(
                     random, item.online_traffic, item.advertising_spend, 4)
           
 
@@ -123,7 +123,6 @@ const Phase4Summary: React.FC<Phase4SummaryProps> = ({ sessionId, playerId }) =>
   const algorithmMAE = calculateAverageError(decisions.map(d => d.algorithm_error));
   const algorithmBetterCount = decisions.filter(d => d.algorithm_error < d.player_error).length;
   const averageDeviation = calculateAverageError(decisions.map(d => d.algorithm_deviation));
-  const averageConfidence = Math.round(decisions.reduce((sum, d) => sum + d.algorithm_confidence, 0) / decisions.length);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">

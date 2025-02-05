@@ -2,11 +2,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-interface Item {
-  id: string;
-  actual_demand: number;
-}
-
 interface PredictionRequest {
   playerId: string;
   itemId: string;

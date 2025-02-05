@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase, type Session } from '../../lib/supabase'
 import * as XLSX from 'xlsx'
 import { useRouter } from 'next/navigation'
-import { generateSessionItems, SeededRandom } from '../../lib/generateItems'
-import { GAME_CONFIG } from '../../config';  // Adjust path as needed
+import { generateSessionItems } from '../../lib/generateItems'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -58,7 +57,6 @@ export default function AdminPage() {
   }
 
   const generateSimulatedData = () => {
-    const random = new SeededRandom(42); // Use a fixed seed for reproducibility
     const items = generateSessionItems(42, false, [200, 0, 0, 0]) // Get all items
       .filter(item => item.phase === 1) // Filter for phase 1 only
       .map(item => ({

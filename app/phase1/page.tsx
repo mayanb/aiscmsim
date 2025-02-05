@@ -59,9 +59,9 @@ export default function Phase1Page() {
           
           <div className="mb-6">
             <p>Make your predictions for {GAME_CONFIG.PHASE_1_DECISIONS} different items.</p>
-            <p>For each item, you'll see:</p>
+            <p>For each item, you will see:</p>
             <ul className="list-disc ml-6 mt-2">
-              <li>Last year's sales for the same month</li>
+              <li>Last year&apos;s sales for the same month</li>
               <li>The current month</li>
               <li>The average temperature</li>
             </ul>

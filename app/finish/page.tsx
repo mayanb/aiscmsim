@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import GameFinish from '../../components/GameFinish';
 
 export default function FinishPage() {

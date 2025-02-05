@@ -1,5 +1,4 @@
 // lib/generateItems.ts
-import { createClient } from '@supabase/supabase-js'
 import { GAME_CONFIG } from '../config';  // Adjust path as needed
 
 // lib/generateItems.ts

@@ -288,7 +288,7 @@ export default function StudentLoginPage() {
           <DialogHeader>
             <DialogTitle>Players Found</DialogTitle>
             <DialogDescription>
-              We found {existingPlayers.length} player(s) with the name "{studentName}" in this session. 
+              We found {existingPlayers.length} player(s) with the name {studentName} in this session. 
               Please select your account or create a new one.
             </DialogDescription>
           </DialogHeader>
