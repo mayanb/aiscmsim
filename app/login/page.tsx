@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { format } from 'date-fns'
 
+
 interface Session {
   id: string;
   name: string;
@@ -154,7 +155,7 @@ export default function StudentLoginPage() {
 
       // Redirect to Phase 1
       router.push('/phase1')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating new player:', err)
       setError('Failed to create new player. Please try again.')
       setLoading(false)
@@ -221,7 +222,7 @@ export default function StudentLoginPage() {
       // No existing player, create new one
       await createNewPlayer()
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error joining session:', err)
       setError('Failed to join session. Please try again.')
       setLoading(false)
