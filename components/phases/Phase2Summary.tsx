@@ -150,7 +150,7 @@ const router = useRouter();
                   <XAxis
                     dataKey="decision_number"
                     label={{ value: 'Decision Number', position: 'bottom' }}
-                    tick={{ dy: 10 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
@@ -170,7 +170,7 @@ const router = useRouter();
                   <XAxis
                     dataKey="decision_number"
                     label={{ value: 'Decision Number', position: 'bottom' }}
-                    tick={{ dy: 10 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
@@ -189,7 +189,7 @@ const router = useRouter();
                   <XAxis
                     dataKey="decision_number"
                     label={{ value: 'Decision Number', position: 'bottom' }}
-                    tick={{ dy: 10 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
@@ -207,7 +207,7 @@ const router = useRouter();
                     type="number"
                     name="Absolute Deviation from TrendAI"
                     label={{ value: 'Absolute Deviation from TrendAI', position: 'bottom', offset: 35 }}
-                    tick={{ dy: 15 }}
+                    tick={{ dy: 5 }}
                     domain={[0, 'maxData']}
                     interval={0}
                     tickCount={10}

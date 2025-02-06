@@ -83,29 +83,6 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
     return null;
   };
 
-  // const fetchCurrentItem = async (decision: number) => {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from('items')
-  //       .select('*')
-  //       .eq('phase', 4)
-  //       .eq('decision_number', decision)
-  //       .eq('session_id', sessionId)
-  //       .single();
-
-  //     if (error) throw error;
-
-  //     let algorithm_confidence = calculateAlgorithmConfidence(
-  //       random, data.online_traffic, data.advertising_spend, 4)
-  //       data.algorithm_confidence = algorithm_confidence
-
-  //     setCurrentItem(data);
-  //     setLoading(false);
-  //   } catch (err) {
-  //     console.error('Error fetching item:', err);
-  //     setLoading(false);
-  //   }
-  // };
 
   const saveProgress = async (decision: number) => {
     try {
@@ -299,7 +276,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
 
           <div className="mt-6 p-6 bg-blue-50 rounded-lg">
             <div className="text-center">
-              <h3 className="font-semibold text-blue-800 mb-2">Algorithm&apos;s Prediction</h3>
+              <h3 className="font-semibold text-blue-800 mb-2">TrendAI&apos;s Prediction</h3>
               <p className="text-4xl font-bold text-blue-900 mb-2">
                 {Math.round(currentItem?.algorithm_prediction || 0).toLocaleString()}
               </p>
@@ -344,12 +321,12 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
                     <h3 className="font-semibold text-slate-600 mb-2">Your Prediction</h3>
                     <p className="text-3xl font-bold">{Math.round(feedback.prediction).toLocaleString()}</p>
-                    <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.error).toLocaleString()}</p>
+                    <p className="text-sm text-slate-500 mt-2">Absolute Error: {Math.round(feedback.error).toLocaleString()}</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
-                    <h3 className="font-semibold text-slate-600 mb-2">Algorithm&apos;s Prediction</h3>
+                    <h3 className="font-semibold text-slate-600 mb-2">TrendAI&apos;s Prediction</h3>
                     <p className="text-3xl font-bold">{Math.round(feedback.algorithmPrediction).toLocaleString()}</p>
-                    <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.algorithmError).toLocaleString()}</p>
+                    <p className="text-sm text-slate-500 mt-2">Absolute Error: {Math.round(feedback.algorithmError).toLocaleString()}</p>
                     <p className="text-sm text-blue-600 mt-1">Confidence: {Math.round(feedback.algorithmConfidence)}%</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
@@ -357,7 +334,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
                     <p className="text-3xl font-bold">{Math.round(feedback.actualDemand).toLocaleString()}</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
-                    <h3 className="font-semibold text-slate-600 mb-2">Algorithm Deviation</h3>
+                    <h3 className="font-semibold text-slate-600 mb-2">Absolute Deviation from TrendAI</h3>
                     <p className="text-3xl font-bold">{Math.round(feedback.algorithmDeviation).toLocaleString()}</p>
                 </div>
                 </div>
@@ -365,58 +342,60 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
                 <div className="space-y-8 mt-8">
                 {/* Prediction Errors Over Time */}
                 <div className="h-96 mb-16">
-                    <h3 className="text-lg font-semibold mb-4">Prediction Errors Over Time</h3>
+                    <h3 className="text-lg font-semibold mb-4">Absolute Prediction Errors Over Time</h3>
                     <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
+                    <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} 
+                      margin={{ top: 5, right: 30, bottom: 10, left: 30 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
                         dataKey="decision" 
-                        label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                        tick={{ dy: 20 }}
+                        label={{ value: 'Decision Number', position: 'bottom', offset: 40 }}
+                        tick={{ dy: 5 }}
                         />
                         <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px', marginBottom: '14px' }}/>
-                        <Line type="monotone" dataKey="playerError" stroke={BLUE} name="Your Error" strokeWidth={2} />
-                        <Line type="monotone" dataKey="algorithmError" stroke={RED} name="Algorithm Error" strokeWidth={2} />
+                        <Line type="monotone" dataKey="playerError" stroke={BLUE} name="Your Absolute Error" strokeWidth={2} />
+                        <Line type="monotone" dataKey="algorithmError" stroke={RED} name="TrendAI Absolute Error" strokeWidth={2} />
                     </LineChart>
                     </ResponsiveContainer>
                 </div>
 
                 {/* Algorithm Deviation Over Time */}
                 <div className="h-96 mb-16">
-                    <h3 className="text-lg font-semibold mb-4">Algorithm Deviation Over Time</h3>
+                    <h3 className="text-lg font-semibold mb-4">Deviations from TrendAI Over Time</h3>
                     <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
+                    <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} 
+                      margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
                         dataKey="decision" 
-                        label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                        tick={{ dy: 20 }}
+                        label={{ value: 'Decision Number', position: 'bottom', offset: 15 }}
+                        tick={{ dy: 5 }}
                         />
-                        <YAxis label={{ value: 'Absolute Deviation from Algo.', angle: -90, position: 'insideLeft', offset: -10, dy: 110 }} />
+                        <YAxis label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 110 }} />
                         <Tooltip content={<CustomTooltip />} />
-                        <Line type="monotone" dataKey="algorithmDeviation" stroke={BLUE} name="Your Deviation" strokeWidth={2} />
+                        <Line type="monotone" dataKey="algorithmDeviation" stroke={BLUE} name="Absolute Deviation" strokeWidth={2} />
                     </LineChart>
                     </ResponsiveContainer>
                 </div>
 
                 {/* Algorithm Confidence vs Deviation */}
                 <div className="h-96 mb-16">
-                    <h3 className="text-lg font-semibold mb-4">Algorithm Confidence vs Your Deviation</h3>
+                    <h3 className="text-lg font-semibold mb-4">TrendAI Confidence vs Your Deviation</h3>
                     <ResponsiveContainer width="100%" height="100%">
-                    <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 40 }}>
+                    <ScatterChart margin={{ top: 20, right: 20, bottom: 60, left: 40 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
                         dataKey="algorithmConfidence" 
                         type="number"
                         domain={[0, 100]}
-                        label={{ value: 'Algorithm Confidence (%)', position: 'bottom', offset: 20 }}
+                        label={{ value: 'TrendAI Confidence (%)', position: 'bottom', offset: 10 }}
                         ticks={[0, 20, 40, 60, 80, 100]}
                         />
                         <YAxis 
                         dataKey="algorithmDeviation"
-                        label={{ value: 'Your Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
+                        label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 80 }}
                         />
                         <Tooltip
                         content={({ active, payload }) => {
@@ -425,8 +404,8 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
                             return (
                                 <div className="bg-white p-3 border rounded shadow-lg">
                                 <p className="text-sm">Confidence: {data.algorithmConfidence}%</p>
-                                <p className="text-sm">Your Deviation: {Math.round(data.algorithmDeviation).toLocaleString()}</p>
-                                <p className="text-sm">Decision: {data.decision}</p>
+                                <p className="text-sm">Absolute Deviation: {Math.round(data.algorithmDeviation).toLocaleString()}</p>
+                                <p className="text-sm">Your Decision: {data.decision}</p>
                                 </div>
                             );
                             }
@@ -443,7 +422,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
 
                 {/* Combined Effects Graph */}
                 <div className="h-96 mb-16">
-                    <h3 className="text-lg font-semibold mb-4">Combined Effects on Algorithm Error</h3>
+                    <h3 className="text-lg font-semibold mb-4">Digital Transformation Combined Effects on TrendAI Error</h3>
                     <ResponsiveContainer width="100%" height="100%">
                     <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 40 }}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -451,7 +430,7 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
                         dataKey="onlineTraffic" 
                         type="number"
                         domain={['dataMin', 'dataMax']}
-                        label={{ value: 'Daily Online Traffic', position: 'bottom', offset: 20 }}
+                        label={{ value: 'Daily Online Traffic', position: 'bottom', offset: 10 }}
                         tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
                         />
                         <YAxis 
@@ -466,8 +445,8 @@ const Phase4: React.FC<Phase4Props> = ({ sessionId, playerId }) => {
                                 <div className="bg-white p-3 border rounded shadow-lg">
                                 <p className="text-sm">Traffic: {data.onlineTraffic?.toLocaleString()}</p>
                                 <p className="text-sm">Ad Spend: ${data.advertisingSpend}</p>
-                                <p className="text-sm">Algorithm Error: {Math.round(data.algorithmError).toLocaleString()}</p>
-                                <p className="text-sm">Algorithm Confidence: {data.algorithmConfidence}%</p>
+                                <p className="text-sm">TrendAI Absolute Error: {Math.round(data.algorithmError).toLocaleString()}</p>
+                                <p className="text-sm">TrendAI Confidence: {data.algorithmConfidence}%</p>
                                 <p className="text-sm">Decision: {data.decision}</p>
                                 </div>
                             );

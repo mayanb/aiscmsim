@@ -123,7 +123,7 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={summaryData.processedData} margin={{ top: 5, right: 20, bottom: 45, left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} tick={{ dy: 10 }} />
+                  <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} tick={{ dy: 5 }} />
                   <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
                   <Legend wrapperStyle={{ paddingTop: '20px' }}/>
@@ -138,7 +138,7 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={summaryData.processedData} margin={{ top: 5, right: 20, bottom: 45, left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} tick={{ dy: 10 }} />
+                  <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} tick={{ dy: 5 }} />
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
                   <Line type="monotone" dataKey="playerError" stroke="#DC2626" name="Your Error" strokeWidth={2} />

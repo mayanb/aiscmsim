@@ -139,7 +139,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                   <XAxis
                     dataKey="decision_number"
                     label={{ value: 'Decision Number', position: 'bottom' }}
-                    tick={{ dy: 10 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
@@ -162,7 +162,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                   <XAxis 
                     dataKey="decision_number" 
                     label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                    tick={{ dy: 20 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                   <Tooltip />
@@ -183,7 +183,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                   <XAxis 
                     dataKey="decision_number" 
                     label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                    tick={{ dy: 20 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                   <Tooltip />

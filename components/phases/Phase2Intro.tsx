@@ -164,7 +164,7 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
                   <XAxis 
                     dataKey="decision_number" 
                     label={{ value: 'Decision Number', position: 'bottom', offset: 0, dy: 2 }}
-                    tick={{ dy: 10 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
@@ -184,7 +184,7 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
                   <XAxis 
                     dataKey="decision_number" 
                     label={{ value: 'Decision Number', position: 'bottom', offset: 0, dy: 2 }}
-                    tick={{ dy: 10 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />

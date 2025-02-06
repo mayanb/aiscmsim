@@ -79,7 +79,7 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
                     type="number"
                     domain={[-10, 10]}
                     label={{ value: 'Focus Group Sentiment Score', position: 'bottom', offset: 35 }}
-                    tick={{ dy: 15 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis 
                     dataKey="actual_demand"
@@ -118,7 +118,7 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
                     type="number"
                     domain={[-10, 10]}
                     label={{ value: 'Focus Group Sentiment Score', position: 'bottom', offset: 35 }}
-                    tick={{ dy: 15 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis 
                     dataKey="prediction_error"

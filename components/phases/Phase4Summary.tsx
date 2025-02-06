@@ -167,7 +167,7 @@ const Phase4Summary: React.FC<Phase4SummaryProps> = ({ sessionId, playerId }) =>
                   <XAxis 
                     dataKey="decision_number" 
                     label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                    tick={{ dy: 20 }}
+                    tick={{ dy: 5 }}
                   />
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                   <Tooltip content={({ active, payload }) => {

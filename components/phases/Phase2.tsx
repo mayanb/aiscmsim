@@ -336,7 +336,7 @@ const saveProgress = async (decision: number) => {
                       <XAxis 
                         dataKey="decision" 
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                        tick={{ dy: 15 }}
+                        tick={{ dy: 5 }}
                       />
                       <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft', offset: -10, dy: 50 }} />
                       <Tooltip content={<CustomTooltip />} />
@@ -357,7 +357,7 @@ const saveProgress = async (decision: number) => {
                       <XAxis 
                         dataKey="decision" 
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                        tick={{ dy: 15 }}
+                        tick={{ dy: 5 }}
                       />
                       <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                       <Tooltip content={<CustomTooltip />} />
@@ -376,7 +376,7 @@ const saveProgress = async (decision: number) => {
                       <XAxis 
                         dataKey="decision" 
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
-                        tick={{ dy: 15 }}
+                        tick={{ dy: 5 }}
                       />
                       <YAxis label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 100 }} />
                       <Tooltip content={<CustomTooltip />} />
