@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { LineChart, Line, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Legend, LineChart, Line, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
 import { GAME_CONFIG } from '../../config';  // Adjust path as needed
@@ -104,40 +104,55 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
   const averageDeviation = calculateAverageError(decisions.map(d => d.algorithm_deviation));
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      <Alert className="bg-blue-50">
-        <AlertDescription className="text-lg">
-          Phase 3 Complete! Let&apos;s analyze how you performed using both the algorithm&apos;s predictions and the focus group sentiment data.
-        </AlertDescription>
-      </Alert>
-
+    <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Performance Summary</CardTitle>
+          <CardTitle>Phase 3 Performance Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Your Average Error</h3>
+              <h3 className="text-sm font-medium text-slate-600">Your MAE</h3>
               <p className="text-2xl font-bold">{playerMAE.toLocaleString()}</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Algorithm Average Error</h3>
+              <h3 className="text-sm font-medium text-slate-600">TrendAI's MAE</h3>
               <p className="text-2xl font-bold">{algorithmMAE.toLocaleString()}</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Algorithm Performed Better In</h3>
-              <p className="text-2xl font-bold">{algorithmBetterCount} / {GAME_CONFIG.PHASE_3_DECISIONS} decisions</p>
+              <h3 className="text-sm font-medium text-slate-600">Times You Improved on TrendAI</h3>
+              <p className="text-2xl font-bold">{GAME_CONFIG.PHASE_3_DECISIONS - algorithmBetterCount} / {GAME_CONFIG.PHASE_3_DECISIONS}</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Average Deviation from Algorithm</h3>
+              <h3 className="text-sm font-medium text-slate-600">Average Absolute Deviation from TrendAI</h3>
               <p className="text-2xl font-bold">{averageDeviation.toLocaleString()}</p>
             </div>
+
           </div>
 
-          <div className="space-y-12">
+          <div className="space-y-8">
+            <div className="h-96 mb-12">
+              <h3 className="text-lg font-semibold mb-4">Demand Predictions Over Time</h3>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={decisions} margin={{ top: 5, right: 20, bottom: 45, left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="decision_number"
+                    label={{ value: 'Decision Number', position: 'bottom' }}
+                    tick={{ dy: 10 }}
+                  />
+                  <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }}/>
+                  <Line type="monotone" dataKey="actual_demand" stroke="#4B5563" name="Actual Demand" strokeWidth={2} />
+                  <Line type="monotone" dataKey="player_prediction" stroke="#2563EB" name="Your Prediction" strokeWidth={2} />
+                  <Line type="monotone" dataKey="algorithm_prediction" stroke="#DC2626" name="TrendAI Prediction" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
             <div className="h-96 mb-16">
-              <h3 className="text-lg font-semibold mb-4">Prediction Errors Over Time</h3>
+              <h3 className="text-lg font-semibold mb-4">Absolute Prediction Errors Over Time</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart 
                   data={[...decisions].sort((a, b) => a.decision_number - b.decision_number)} 
@@ -158,7 +173,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
             </div>
 
             <div className="h-96 mb-16">
-              <h3 className="text-lg font-semibold mb-4">Algorithm Deviation Over Time</h3>
+              <h3 className="text-lg font-semibold mb-4">Absolute Deviation From TrendAI Over Time</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart 
                   data={[...decisions].sort((a, b) => a.decision_number - b.decision_number)} 
@@ -170,7 +185,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                     label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
                     tick={{ dy: 20 }}
                   />
-                  <YAxis label={{ value: 'Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
+                  <YAxis label={{ value: 'Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                   <Tooltip />
                   <Line type="monotone" dataKey="algorithm_deviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
                 </LineChart>
@@ -178,7 +193,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
             </div>
 
             <div className="h-96 mb-28">
-              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Absolute Error</h3>
+              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs TrendAI Absolute Error</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -202,7 +217,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                         return (
                           <div className="bg-white p-3 border rounded shadow-lg">
                             <p className="text-sm">Sentiment: {data.social_sentiment.toFixed(1)}</p>
-                            <p className="text-sm">Algorithm Absolute Error: {Math.round(data.algorithm_error).toLocaleString()}</p>
+                            <p className="text-sm">TrendAI Absolute Error: {Math.round(data.algorithm_error).toLocaleString()}</p>
                             <p className="text-sm">Decision: {data.decision_number}</p>
                           </div>
                         );
@@ -222,7 +237,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
 
 
             <div className="h-96 mb-28">
-              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Absolute Deviation</h3>
+              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Absolute Deviation from TrendAI</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -236,7 +251,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                   <YAxis 
                     type="number"
                     domain={[0, 'auto']}
-                    label={{ value: 'Absolute Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 80 }}
+                    label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 80 }}
                   />
                   <Tooltip 
                     cursor={{ strokeDasharray: '3 3' }}
@@ -255,7 +270,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                     }}
                   />
                   <Scatter
-                    name="Algorithm Deviation"
+                    name="Deviation from TrendAI"
                     data={decisions.sort((a, b) => a.social_sentiment - b.social_sentiment)}
                     fill="#2563EB"
                     dataKey="algorithm_deviation"
@@ -266,7 +281,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
 
 
             <div className="h-96 mb-28">
-              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Raw Error</h3>
+              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs TrendAI Raw Error</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -280,7 +295,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                   <YAxis 
                     type="number"
                     domain={[0, 'auto']}
-                    label={{ value: 'Algorithm Raw Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
+                    label={{ value: 'TrendAI Raw Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
                   />
                   <Tooltip 
                     cursor={{ strokeDasharray: '3 3' }}
@@ -291,7 +306,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                           <div className="bg-white p-3 border rounded shadow-lg">
                             <p className="text-sm">Sentiment: {data.social_sentiment}</p>
                             <p className="text-sm">
-                          {data.prediction_difference > 0 ? 'Algorithm Over-predicted by: ' : 'Algorithm Under-predicted by: '}
+                          {data.prediction_difference > 0 ? 'TrendAI Over-predicted by: ' : 'TrendAI Under-predicted by: '}
                           {Math.abs(Math.round(data.prediction_difference)).toLocaleString()}
                         </p>                            <p className="text-sm">Decision: {data.decision_number}</p>
                           </div>
@@ -301,7 +316,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                     }}
                   />
                   <Scatter
-                        name="Algorithm Error"
+                        name="TrendAI Error"
                         data={decisions
                         .map(d => ({
                             ...d,
@@ -319,7 +334,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
 
 
             <div className="h-96 mb-28">
-              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Raw Deviation</h3>
+              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Raw Deviation from TrendAI</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -333,7 +348,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                   <YAxis
                     type="number"
                     domain={['auto', 'auto']}  // Allow negative values
-                    label={{ value: 'Raw Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 80 }}
+                    label={{ value: 'Raw Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 80 }}
                   />
                   <Tooltip
                     cursor={{ strokeDasharray: '3 3' }}
@@ -345,7 +360,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                           <div className="bg-white p-3 border rounded shadow-lg">
                             <p className="text-sm">Sentiment: {data.social_sentiment.toFixed(1)}</p>
                             <p className="text-sm">
-                              {rawDeviation > 0 ? 'Adjusted algorithm up by: ' : 'Adjusted algorithm down by: '}
+                              {rawDeviation > 0 ? 'Adjusted TrendAI up by: ' : 'Adjusted TrendAI down by: '}
                               {Math.abs(Math.round(rawDeviation)).toLocaleString()}
                             </p>
                             <p className="text-sm">Decision: {data.decision_number}</p>
@@ -356,7 +371,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                     }}
                   />
                   <Scatter
-                    name="Algorithm Deviation"
+                    name="TrendAI Deviation"
                     data={decisions
                       .map(d => ({
                         ...d,
@@ -382,7 +397,7 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
                       <TableHead>Last Year Sales</TableHead>
                       <TableHead>Temperature</TableHead>
                       <TableHead className="font-bold">Focus Group Sentiment</TableHead>
-                      <TableHead>Algorithm Prediction</TableHead>
+                      <TableHead>TrendAI Prediction</TableHead>
                       <TableHead>Your Prediction</TableHead>
                       <TableHead>Actual Demand</TableHead>
                     </TableRow>
@@ -409,16 +424,51 @@ const Phase3Summary: React.FC<Phase3SummaryProps> = ({ sessionId, playerId }) =>
               </div>
             </div>
           </div>
+          <Card className="mt-16 bg-blue-50 border-blue-100">
+            <CardHeader>
+              <CardTitle className="text-lg">🤔 Reflection Questions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-blue-800">
+                Consider these questions as you reflect on your Phase 3 performance and your use of private information:
+              </p>
+              <div className="space-y-3">
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">📊 Private Information Analysis</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>How did focus group sentiment scores correlate with actual demand? What patterns did you notice?</li>
+                    <li>In what situations did TrendAI seem to make larger errors? Were these related to sentiment scores?</li>
+                  </ul>
+                </div>
 
-          <div className="mt-16 flex justify-center">
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">🎯 Prediction Strategy</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>How did you adjust TrendAI's predictions based on the sentiment scores? What was your strategy?</li>
+                    <li>Looking at your MAE compared to TrendAI's, how effective was your strategy?</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">📈 Performance Impact</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>How did your average error in Phase 3 compare to Phase 2? What role did the sentiment information play?</li>
+                    <li>Were there cases where the sentiment information led you astray? What did you learn from these instances?</li>
+                    <li>How could you have better incorporated the sentiment information into your predictions?</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="mt-8 flex justify-center">
             <Button 
-                onClick={() => router.push('/phase4')} 
-                className="w-48"
+              onClick={() => router.push('/phase4')} 
+              className="w-48"
             >
-                Continue to Phase 4
+              Continue to Phase 4
             </Button>
-        </div>
-
+          </div>
         </CardContent>
       </Card>
     </div>

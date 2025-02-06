@@ -212,17 +212,6 @@ const saveProgress = async (decision: number) => {
     }
   };
 
-//   // Helper functions for calculating averages
-// const calculateAverageError = (data: PerformanceData[]) => {
-//     if (!data || data.length === 0) return 0;
-//     return Math.round(data.reduce((sum, d) => sum + d.playerError, 0) / data.length);
-//   };
-  
-//   const calculateAlgorithmAverageError = (data: PerformanceData[]) => {
-//     if (!data || data.length === 0) return 0;
-//     return Math.round(data.reduce((sum, d) => sum + d.algorithmError, 0) / data.length);
-//   };
-
   const handleNext = async () => {
     if (!feedback) return;
 
@@ -282,7 +271,7 @@ const saveProgress = async (decision: number) => {
           </div>
 
           <div className="mt-6 p-6 bg-blue-50 rounded-lg text-center">
-            <h3 className="font-semibold text-blue-800 mb-2">Algorithm&apos;s Prediction</h3>
+            <h3 className="font-semibold text-blue-800 mb-2">TrendAI&apos;s Prediction</h3>
             <p className="text-4xl font-bold text-blue-900">
               {Math.round(currentItem?.algorithm_prediction || 0).toLocaleString()}
             </p>
@@ -323,26 +312,26 @@ const saveProgress = async (decision: number) => {
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
                   <h3 className="font-semibold text-slate-600 mb-2">Your Prediction</h3>
                   <p className="text-3xl font-bold">{Math.round(feedback.prediction).toLocaleString()}</p>
-                  <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.error).toLocaleString()}</p>
+                  <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.prediction - feedback.actualDemand).toLocaleString()}</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
-                  <h3 className="font-semibold text-slate-600 mb-2">Algorithm&apos;s Prediction</h3>
+                  <h3 className="font-semibold text-slate-600 mb-2">TrendAI&apos;s Prediction</h3>
                   <p className="text-3xl font-bold">{Math.round(feedback.algorithmPrediction).toLocaleString()}</p>
-                  <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.algorithmError).toLocaleString()}</p>
+                  <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.algorithmPrediction - feedback.actualDemand).toLocaleString()}</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
                   <h3 className="font-semibold text-slate-600 mb-2">Actual Demand</h3>
                   <p className="text-3xl font-bold">{Math.round(feedback.actualDemand).toLocaleString()}</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
-                  <h3 className="font-semibold text-slate-600 mb-2">Algorithm Deviation</h3>
-                  <p className="text-3xl font-bold">{Math.round(feedback.algorithmDeviation).toLocaleString()}</p>
+                  <h3 className="font-semibold text-slate-600 mb-2">Deviation from TrendAI</h3>
+                  <p className="text-3xl font-bold">{Math.round(feedback.prediction - feedback.algorithmPrediction).toLocaleString()}</p>
                 </div>
               </div>
 
               <div className="space-y-8 mt-8">
                 <div className="h-96 mb-16">
-                  <h3 className="text-lg font-semibold mb-4">Prediction Errors Over Time</h3>
+                  <h3 className="text-lg font-semibold mb-4">Absolute Prediction Errors Over Time</h3>
                   <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -354,14 +343,14 @@ const saveProgress = async (decision: number) => {
                       <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }} />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px', marginBottom: '14px' }}/>
-                      <Line type="monotone" dataKey="playerError" stroke="#2563EB" name="Your Error" strokeWidth={2} />
-                      <Line type="monotone" dataKey="algorithmError" stroke="#DC2626" name="Algorithm Error" strokeWidth={2} />
+                      <Line type="monotone" dataKey="playerError" stroke="#2563EB" name="Your Absolute Error" strokeWidth={2} />
+                      <Line type="monotone" dataKey="algorithmError" stroke="#DC2626" name="TrendAI Absolute Error" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
 
                 <div className="h-96 mb-16 pb-8">
-                  <h3 className="text-lg font-semibold mb-4">Algorithm Deviation Over Time</h3>
+                  <h3 className="text-lg font-semibold mb-4">Absolute Deviation from TrendAI Over Time</h3>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -370,15 +359,15 @@ const saveProgress = async (decision: number) => {
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
                         tick={{ dy: 20 }}
                       />
-                      <YAxis label={{ value: 'Absolute Deviation from Algo.', angle: -90, position: 'insideLeft', offset: -10, dy: 110 }} />
+                      <YAxis label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 110 }} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Line type="monotone" dataKey="algorithmDeviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
+                      <Line type="monotone" dataKey="algorithmDeviation" stroke="#2563EB" name="Your Absolute Deviation" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
 
                 <div className="h-96 mb-28 pb-8">
-                    <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Absolute Error</h3>
+                    <h3 className="text-lg font-semibold mb-4">Sentiment Score vs TrendAI Absolute Error</h3>
                     <ResponsiveContainer width="100%" height="100%">
                         <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -392,7 +381,7 @@ const saveProgress = async (decision: number) => {
                         <YAxis 
                             type="number"
                             domain={[0, 'auto']}
-                            label={{ value: 'Algorithm Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
+                            label={{ value: 'TrendAI Absolute Error', angle: -90, position: 'insideLeft', offset: -10, dy: 65 }}
                         />
                         <Tooltip 
                             cursor={{ strokeDasharray: '3 3' }}
@@ -402,8 +391,8 @@ const saveProgress = async (decision: number) => {
                                 return (
                                 <div className="bg-white p-3 border rounded shadow-lg">
                                     <p className="text-sm">Sentiment: {data.sentimentScore.toFixed(1)}</p>
-                                    <p className="text-sm text-red-600">Algorithm Error: {Math.round(data.algorithmError).toLocaleString()}</p>
-                                    <p className="text-sm text-blue-600">Your Deviation: {Math.round(data.algorithmDeviation).toLocaleString()}</p>
+                                    <p className="text-sm text-red-600">TrendAI Absolute Error: {Math.round(data.algorithmError).toLocaleString()}</p>
+                                    <p className="text-sm text-blue-600">Your Absolute Deviation: {Math.round(data.algorithmDeviation).toLocaleString()}</p>
                                     <p className="text-sm text-slate-600">Decision: {data.decision}</p>
                                 </div>
                                 );
@@ -412,7 +401,7 @@ const saveProgress = async (decision: number) => {
                             }}
                         />
                         <Scatter
-                            name="Algorithm Error"
+                            name="TrendAI Absolute Error"
                             data={performanceHistory.sort((a, b) => a.sentimentScore - b.sentimentScore)}
                             fill="#DC2626"
                             dataKey="algorithmError"
@@ -422,7 +411,7 @@ const saveProgress = async (decision: number) => {
                 </div>
 
                 <div className="h-96 mb-28">
-                    <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm Absolute Deviation</h3>
+                    <h3 className="text-lg font-semibold mb-4">Sentiment Score vs TrendAI Absolute Deviation</h3>
                     <ResponsiveContainer width="100%" height="100%">
                         <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -436,7 +425,7 @@ const saveProgress = async (decision: number) => {
                         <YAxis 
                             type="number"
                             domain={[0, 'auto']}
-                            label={{ value: 'Absolute Deviation from Algo.', angle: -90, position: 'insideLeft', offset: -10, dy: 110 }}
+                            label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 110 }}
                         />
                         <Tooltip 
                             cursor={{ strokeDasharray: '3 3' }}
@@ -446,8 +435,8 @@ const saveProgress = async (decision: number) => {
                                 return (
                                 <div className="bg-white p-3 border rounded shadow-lg">
                                     <p className="text-sm">Sentiment: {data.sentimentScore.toFixed(1)}</p>
-                                    <p className="text-sm text-red-600">Algorithm Error: {Math.round(data.algorithmError).toLocaleString()}</p>
-                                    <p className="text-sm text-blue-600">Your Deviation: {Math.round(data.algorithmDeviation).toLocaleString()}</p>
+                                    <p className="text-sm text-red-600">TrendAI Absolute Error: {Math.round(data.algorithmError).toLocaleString()}</p>
+                                    <p className="text-sm text-blue-600">Your Absolute Deviation: {Math.round(data.algorithmDeviation).toLocaleString()}</p>
                                     <p className="text-sm text-slate-600">Decision: {data.decision}</p>
                                 </div>
                                 );
@@ -456,7 +445,7 @@ const saveProgress = async (decision: number) => {
                             }}
                         />
                         <Scatter
-                            name="Algorithm Deviation"
+                            name="TrendAI Deviation"
                             data={performanceHistory.sort((a, b) => a.sentimentScore - b.sentimentScore)}
                             fill="#2563EB"
                             dataKey="algorithmDeviation"

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter, LineChart, Line, Legend } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '../../lib/supabase';
-import { GAME_CONFIG } from '../../config';  // Adjust path as needed
+import { generateSessionItems, SeededRandom } from '../../lib/generateItems';
+import { GAME_CONFIG } from '../../config';
 
 interface Phase3IntroProps {
   sessionId: string;
@@ -13,198 +13,87 @@ interface Phase3IntroProps {
   onBeginPhase3: () => void;
 }
 
-interface Phase2Decision {
-  decision_number: number;
-  month: number;
-  last_year_sales: number;
-  temperature: number;
-  sentiment_score: number;
-  actual_demand: number;
-  player_prediction: number;
-  algorithm_prediction: number;
-  player_error: number;
-  algorithm_error: number;
-}
-
 const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginPhase3 }) => {
-  const [phase2Data, setPhase2Data] = useState<Phase2Decision[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchPhase2Data = async () => {
-      try {
-        // Fetch all Phase 2 items
-        const { data: items, error: itemsError } = await supabase
-          .from('items')
-          .select('*')
-          .eq('phase', 2)
-          .eq('session_id', sessionId)
-          .order('decision_number');
-
-        if (itemsError || !items) throw itemsError || new Error('No items found');
-
-        // Fetch player's decisions
-        const { data: decisions, error: decisionsError } = await supabase
-          .from('decisions')
-          .select('*')
-          .eq('player_id', playerId);
-
-        if (decisionsError || !decisions) throw decisionsError || new Error('No decisions found');
-
-        // Process and combine the data
-        const processedData = items.map(item => {
-          const playerDecision = decisions.find(d => d.item_id === item.id);
-
-          return {
-            decision_number: item.decision_number,
-            month: item.month,
-            last_year_sales: item.last_year_sales,
-            temperature: item.temperature,
-            sentiment_score: item.social_sentiment,
-            actual_demand: item.actual_demand,
-            player_prediction: playerDecision?.player_prediction || 0,
-            algorithm_prediction: item.algorithm_prediction,
-            player_error: Math.abs((playerDecision?.player_prediction || 0) - item.actual_demand),
-            algorithm_error: Math.abs(item.algorithm_prediction - item.actual_demand)
-          };
-        });
-
-        setPhase2Data(processedData);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching Phase 2 data:', err);
-        setError('Failed to load Phase 2 data');
-        setLoading(false);
-      }
-    };
-
-    fetchPhase2Data();
-  }, [sessionId, playerId]);
-
-  const calculateAverageError = (errors: number[]) => {
-    return Math.round(errors.reduce((sum, err) => sum + err, 0) / errors.length);
-  };
-
-  if (loading) {
-    return <div className="text-center p-8">Loading Phase 2 results...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500 text-center p-8">{error}</div>;
-  }
-
-  const algorithmMAE = calculateAverageError(phase2Data.map(d => d.algorithm_error));
-  const playerMAE = calculateAverageError(phase2Data.map(d => d.player_error));
-  const algorithmBetterCount = phase2Data.filter(d => d.algorithm_error < d.player_error).length;
+  const sampleData = useMemo(() => {
+    const random = new SeededRandom(42);
+    const items = generateSessionItems(42, false, [0, 0, 20, 0])
+      .filter(item => item.phase === 3)
+      .slice(0, 20)
+      .map(item => ({
+        ...item,
+        sentiment_score: item.social_sentiment,
+        prediction_error: Math.abs(item.algorithm_prediction - item.actual_demand),
+        relative_error: (item.algorithm_prediction - item.actual_demand) / item.actual_demand
+      }));
+    return items;
+  }, []);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold text-center text-blue-800">Phase 3: Your Secret Weapon</h1>
+
       <Alert className="bg-blue-50">
         <AlertDescription className="text-lg space-y-4">
           <p>
-            Welcome to Phase 3! This time, you&apos;ll be able to observe some additional private information 
-            that the company&apos;s algorithm does not have access to.
+            The marketing team at TRENDY THREADS INC. has been running focus groups to gather feedback 
+            on our product lines. As a test, they gathered sentiment scores for 20 recent products that 
+            TrendAI made predictions for.
           </p>
           <p>
-            You&apos;ve started polling focus groups on how much they like each product. From them, you calculate 
-            your own sentiment score (from -10 to 10) based on how much the focus group likes the product.
+            Each product was rated by the focus group on a scale from -10 (strongly dislike) to +10 
+            (strongly like). TrendAI doesn&apos;t have access to this information - it&apos;s your unique insight 
+            into customer preferences!
           </p>
           <p>
-            You&apos;ve shown the focus groups the products that you just made forecasts for and obtained their 
-            sentiment scores for those products. Look at the data below and see how the focus group&apos;s 
-            sentiment score might be helpful in making your own demand predictions or in adjusting the 
-            algorithm&apos;s demand predictions.
+            Let&apos;s look at how these sentiment scores relate to actual demand and TrendAI&apos;s prediction accuracy...
           </p>
         </AlertDescription>
       </Alert>
 
+      <div className="bg-purple-50 p-4 rounded-lg my-4">
+        <h3 className="text-md font-semibold mb-2">🔍 What to Watch For in Phase 3:</h3>
+        <p className="mb-2">As you analyze this data and prepare for Phase 3, consider:</p>
+        <ul className="list-disc ml-6 space-y-2">
+          <li><strong>Information Edge:</strong> You now have sentiment data that TrendAI can&apos;t see - how might this help?</li>
+          <li><strong>Pattern Recognition:</strong> Does positive/negative sentiment correlate with higher/lower demand?</li>
+          <li><strong>AI Limitations:</strong> When does TrendAI seem to make larger errors? Are these related to sentiment?</li>
+          <li><strong>Adjustment Strategy:</strong> How will you use sentiment scores to adjust TrendAI&apos;s predictions?</li>
+          <li><strong>Market Understanding:</strong> What does the focus group feedback tell you about customer preferences?</li>
+        </ul>
+        <p className="mt-4 text-sm italic">Keep these questions in mind as you review the data below - they&apos;ll help you develop your strategy!</p>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Phase 2 Performance Review</CardTitle>
+          <CardTitle>Focus Group Results Analysis</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Your Average Error</h3>
-              <p className="text-2xl font-bold">{playerMAE.toLocaleString()}</p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Algorithm Average Error</h3>
-              <p className="text-2xl font-bold">{algorithmMAE.toLocaleString()}</p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Algorithm Performed Better In</h3>
-              <p className="text-2xl font-bold">{algorithmBetterCount} / {GAME_CONFIG.PHASE_2_DECISIONS} decisions</p>
-            </div>
-          </div>
-
           <div className="space-y-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Phase 2 Results with Focus Group Sentiment</h3>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Decision</TableHead>
-                      <TableHead>Month</TableHead>
-                      <TableHead>Last Year Sales</TableHead>
-                      <TableHead>Temperature</TableHead>
-                      <TableHead className="font-bold">Focus Group Sentiment</TableHead>
-                      <TableHead>Algorithm Prediction</TableHead>
-                      <TableHead>Your Prediction</TableHead>
-                      <TableHead>Actual Demand</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {phase2Data.map((decision) => (
-                      <TableRow key={decision.decision_number}>
-                        <TableCell>{decision.decision_number}</TableCell>
-                        <TableCell>
-                          {new Date(0, decision.month - 1).toLocaleString('default', { month: 'long' })}
-                        </TableCell>
-                        <TableCell>{Math.round(decision.last_year_sales).toLocaleString()}</TableCell>
-                        <TableCell>{Math.round(decision.temperature)}°F</TableCell>
-                        <TableCell className="font-bold">
-                          {Math.round(decision.sentiment_score)}
-                        </TableCell>
-                        <TableCell>{Math.round(decision.algorithm_prediction).toLocaleString()}</TableCell>
-                        <TableCell>{Math.round(decision.player_prediction).toLocaleString()}</TableCell>
-                        <TableCell>{Math.round(decision.actual_demand).toLocaleString()}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-
-            <div className="h-96">
-              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Algorithm&apos;s Prediction Error</h3>
+            <div className="h-96 mb-12">
+              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs Actual Demand</h3>
               <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 5, right: 20, bottom: 45, left: 30 }}>
+                <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="sentiment_score"
                     type="number"
                     domain={[-10, 10]}
-                    label={{ value: 'Focus Group Sentiment Score', position: 'bottom', offset: 25 }}
-                    tick={{ dy: 10 }}
+                    label={{ value: 'Focus Group Sentiment Score', position: 'bottom', offset: 35 }}
+                    tick={{ dy: 15 }}
                   />
                   <YAxis 
-                    label={{ value: 'Algorithm Error', angle: -90, position: 'insideLeft', offset: -10 }}
-                    domain={[0, 'auto']}
+                    dataKey="actual_demand"
+                    label={{ value: 'Actual Demand', angle: -90, position: 'insideLeft', offset: -10 }}
                   />
                   <Tooltip 
-                    cursor={{ strokeDasharray: '3 3' }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
                           <div className="bg-white p-3 border rounded shadow-lg">
                             <p className="text-sm">Sentiment: {data.sentiment_score}</p>
-                            <p className="text-sm">Error: {Math.round(data.algorithm_error).toLocaleString()}</p>
-                            <p className="text-sm">Algorithm Prediction: {Math.round(data.algorithm_prediction).toLocaleString()}</p>
                             <p className="text-sm">Actual Demand: {Math.round(data.actual_demand).toLocaleString()}</p>
+                            <p className="text-sm">TrendAI Prediction: {Math.round(data.algorithm_prediction).toLocaleString()}</p>
                           </div>
                         );
                       }
@@ -212,12 +101,82 @@ const Phase3Intro: React.FC<Phase3IntroProps> = ({ sessionId, playerId, onBeginP
                     }}
                   />
                   <Scatter 
-                    data={phase2Data.sort((a, b) => a.sentiment_score - b.sentiment_score)}
-                    dataKey="algorithm_error"
+                    data={sampleData}
+                    fill="#2563EB"
+                  />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="h-96 mb-16">
+              <h3 className="text-lg font-semibold mb-4">Sentiment Score vs TrendAI Error</h3>
+              <ResponsiveContainer width="100%" height="100%">
+                <ScatterChart margin={{ top: 20, right: 30, bottom: 100, left: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="sentiment_score"
+                    type="number"
+                    domain={[-10, 10]}
+                    label={{ value: 'Focus Group Sentiment Score', position: 'bottom', offset: 35 }}
+                    tick={{ dy: 15 }}
+                  />
+                  <YAxis 
+                    dataKey="prediction_error"
+                    label={{ value: 'TrendAI Absolute Error', angle: -90, position: 'insideLeft', offset: -10 }}
+                  />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="bg-white p-3 border rounded shadow-lg">
+                            <p className="text-sm">Sentiment: {data.sentiment_score}</p>
+                            <p className="text-sm">TrendAI Error: {Math.round(data.prediction_error).toLocaleString()}</p>
+                            <p className="text-sm">Prediction: {Math.round(data.algorithm_prediction).toLocaleString()}</p>
+                            <p className="text-sm">Actual: {Math.round(data.actual_demand).toLocaleString()}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Scatter 
+                    data={sampleData}
                     fill="#DC2626"
                   />
                 </ScatterChart>
               </ResponsiveContainer>
+            </div>
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Month</TableHead>
+                    <TableHead>Last Year&apos;s Sales</TableHead>
+                    <TableHead>Temperature</TableHead>
+                    <TableHead className="font-bold">Focus Group Score</TableHead>
+                    <TableHead>TrendAI Prediction</TableHead>
+                    <TableHead>Actual Demand</TableHead>
+                    <TableHead>TrendAI Error</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sampleData.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        {new Date(0, item.month - 1).toLocaleString('default', { month: 'long' })}
+                      </TableCell>
+                      <TableCell>{Math.round(item.last_year_sales).toLocaleString()}</TableCell>
+                      <TableCell>{Math.round(item.temperature)}°F</TableCell>
+                      <TableCell className="font-bold">{item.sentiment_score !== null ? Math.round(item.sentiment_score) : 'N/A'}</TableCell>
+                      <TableCell>{Math.round(item.algorithm_prediction).toLocaleString()}</TableCell>
+                      <TableCell>{Math.round(item.actual_demand).toLocaleString()}</TableCell>
+                      <TableCell>{Math.round(item.prediction_error).toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </div>
 

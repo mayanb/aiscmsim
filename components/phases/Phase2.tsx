@@ -262,7 +262,7 @@ const saveProgress = async (decision: number) => {
           </div>
 
           <div className="mt-6 p-6 bg-blue-50 rounded-lg text-center">
-            <h3 className="font-semibold text-blue-800 mb-2">Algorithm&apos;s Prediction</h3>
+            <h3 className="font-semibold text-blue-800 mb-2">TrendAI&apos;s Prediction</h3>
             <p className="text-4xl font-bold text-blue-900">
               {Math.round(currentItem?.algorithm_prediction || 0).toLocaleString()}
             </p>
@@ -306,7 +306,7 @@ const saveProgress = async (decision: number) => {
                   <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.error).toLocaleString()}</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
-                  <h3 className="font-semibold text-slate-600 mb-2">Algorithm&apos;s Prediction</h3>
+                  <h3 className="font-semibold text-slate-600 mb-2">TrendAI&apos;s Prediction</h3>
                   <p className="text-3xl font-bold">{Math.round(feedback.algorithmPrediction).toLocaleString()}</p>
                   <p className="text-sm text-slate-500 mt-2">Error: {Math.round(feedback.algorithmError).toLocaleString()}</p>
                 </div>
@@ -315,12 +315,39 @@ const saveProgress = async (decision: number) => {
                   <p className="text-3xl font-bold">{Math.round(feedback.actualDemand).toLocaleString()}</p>
                 </div>
                 <div className="text-center p-6 bg-slate-50 rounded-lg">
-                  <h3 className="font-semibold text-slate-600 mb-2">Algorithm Deviation</h3>
+                  <h3 className="font-semibold text-slate-600 mb-2">Deviation from TrendAI</h3>
                   <p className="text-3xl font-bold">{Math.round(feedback.algorithmDeviation).toLocaleString()}</p>
                 </div>
               </div>
 
               <div className="space-y-8 mt-8">
+
+                <div className="h-96 mb-16">
+                  <h3 className="text-lg font-semibold mb-4">Demand Predictions Over Time</h3>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={[...performanceHistory].map(point => ({
+                      ...point,
+                      yourPrediction: allDecisions.find(d => d.item_id === allItems.find(i => i.decision_number === point.decision)?.id)?.player_prediction || 0,
+                      trendAIPrediction: allItems.find(i => i.decision_number === point.decision)?.algorithm_prediction || 0,
+                      actualDemand: allItems.find(i => i.decision_number === point.decision)?.actual_demand || 0
+                    })).sort((a, b) => a.decision - b.decision)} 
+                    margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="decision" 
+                        label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
+                        tick={{ dy: 15 }}
+                      />
+                      <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft', offset: -10, dy: 50 }} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px', marginBottom: '20px' }}/>
+                      <Line type="monotone" dataKey="actualDemand" stroke="#4B5563" name="Actual Demand" strokeWidth={2} />
+                      <Line type="monotone" dataKey="yourPrediction" stroke="#2563EB" name="Your Prediction" strokeWidth={2} />
+                      <Line type="monotone" dataKey="trendAIPrediction" stroke="#DC2626" name="TrendAI Prediction" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
                 <div className="h-96 mb-16">
                   <h3 className="text-lg font-semibold mb-4">Prediction Errors Over Time</h3>
                   <ResponsiveContainer width="100%" height="100%">
@@ -336,13 +363,13 @@ const saveProgress = async (decision: number) => {
                       <Tooltip content={<CustomTooltip />} />
                       <Legend wrapperStyle={{ paddingTop: '25px', paddingBottom: '10px', marginBottom: '20px' }}/>
                       <Line type="monotone" dataKey="playerError" stroke="#2563EB" name="Your Error" strokeWidth={2} />
-                      <Line type="monotone" dataKey="algorithmError" stroke="#DC2626" name="Algorithm Error" strokeWidth={2} />
+                      <Line type="monotone" dataKey="algorithmError" stroke="#DC2626" name="TrendAI Error" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
 
                 <div className="h-96 mb-16">
-                  <h3 className="text-lg font-semibold mb-4">Algorithm Deviation Over Time</h3>
+                  <h3 className="text-lg font-semibold mb-4">Deviation from TrendAI Over Time</h3>
                   <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={[...performanceHistory].sort((a, b) => a.decision - b.decision)} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -351,7 +378,7 @@ const saveProgress = async (decision: number) => {
                         label={{ value: 'Decision Number', position: 'bottom', offset: 35 }}
                         tick={{ dy: 15 }}
                       />
-                      <YAxis label={{ value: 'Absolute Deviation from Algorithm', angle: -90, position: 'insideLeft', offset: -10, dy: 100 }} />
+                      <YAxis label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft', offset: -10, dy: 100 }} />
                       <Tooltip content={<CustomTooltip />} />
                       <Line type="monotone" dataKey="algorithmDeviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
                     </LineChart>

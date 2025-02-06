@@ -24,7 +24,7 @@ const BLUE = "#2563EB";
 const Phase4Intro: React.FC<Phase4IntroProps> = ({ onBeginPhase4 }) => {
     const random = new SeededRandom(42);
     const sampleData = useMemo(() => {
-        const items = generateSessionItems(42, false).filter(item => item.phase === 4);
+        const items = generateSessionItems(42, false, [0, 0, 0, 20]).filter(item => item.phase === 4);
         
         return items.map(item => ({
           ...item,
@@ -59,35 +59,54 @@ const Phase4Intro: React.FC<Phase4IntroProps> = ({ onBeginPhase4 }) => {
   
     return (
       <div className="space-y-8 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold text-center text-blue-800">Phase 4: The Digital Transformation and a Shifting Landscape</h1>
         <Alert className="bg-blue-50">
           <AlertDescription className="text-lg space-y-4">
+          <p>
+            Congratulations on your successful demand predictions at TRENDY THREADS INC.! Your innovative use of TrendAI 
+            and focus group insights has caught the attention of senior leadership.
+          </p>
+          <p>
+            The company is now embarking on an ambitious digital transformation initiative. We&apos;ve revamped our 
+            e-commerce platform and launched targeted digital marketing campaigns. This shift has introduced new 
+            dynamics in how customers discover and interact with our products. While the TrendAI continues to be a valuable tool, 
+            its performance seems to vary across different market conditions.
+          </p>
             <p>
-              Welcome to Phase 4 - The Digital Transformation!
+              To help you make demand forecasts in this shifting landscape, the data science team has added two new metrics to your dashboard:
             </p>
-            <p>
-              Your retail division has been performing well, and the company has decided to increase its 
-              investment in digital marketing and e-commerce. Over the past month, we&apos;ve launched targeted 
-              advertising campaigns and revamped our online store to drive more traffic to our product pages.
-            </p>
-            <p>
-              Our data science team has been monitoring the algorithm&apos;s performance, and they&apos;ve noticed some 
-              interesting patterns. While the algorithm continues to be a valuable tool, its performance seems 
-              to vary across different market conditions.
-            </p>
-            <p>
-              You&apos;ll now have access to two new metrics:
-            </p>
-            <ul className="list-disc list-inside ml-4">
-              <li>Online Traffic: The number of daily visits to each product&apos;s page</li>
-              <li>Advertising Spend: Our current investment in promoting each product</li>
+            <ul className="list-disc ml-6 space-y-2">
+              <li><strong>Online Traffic:</strong> The number of daily visits to each product&apos;s page</li>
+              <li><strong>Advertising Spend:</strong> Our current investment in promoting each product</li>
             </ul>
             <p>
-              Additionally, for each prediction, the algorithm will now show you its confidence score, 
-              indicating how reliable it believes its forecast to be.
+              The data science team has also developed a new "confidence score" feature for TrendAI. 
+              For each prediction, TrendAI will now tell you how confident it is in its forecast. 
+              They suggest paying attention to these confidence scores - they might give you helpful hints about when to trust TrendAI&apos;s predictions and when to rely more on your judgment.
+            </p>
+            <p>
+              As our business evolves, your challenge is to adapt your decision-making process. Some products are gaining more online visibility than others, and customer behavior seems to be shifting in response to our digital initiatives. 
+              Can you identify these patterns and adjust your forecasts accordingly?
+            </p>
+            <p className="italic">
+              Remember: The retail landscape is changing, and what worked yesterday might not work as well today. Good luck!
             </p>
           </AlertDescription>
         </Alert>
-        
+
+        <div className="bg-purple-50 p-4 rounded-lg my-4">
+          <h3 className="text-md font-semibold mb-2">🔍 What to Watch For in Phase 4:</h3>
+          <p className="mb-2">As you analyze the data and prepare for Phase 4, consider:</p>
+          <ul className="list-disc ml-6 space-y-2">
+            <li><strong>Digital Presence:</strong> How does online visibility affect customer demand? Are there distinct patterns based on traffic levels?</li>
+            <li><strong>Marketing Impact:</strong> What happens to demand and prediction accuracy when we increase advertising spend?</li>
+            <li><strong>Algorithm Confidence:</strong> What factors seem to influence TrendAI's confidence? Does lower confidence correlate with worse predictions?</li>
+            <li><strong>Changing Patterns:</strong> Do you notice any systematic biases in TrendAI's predictions under different conditions?</li>
+          </ul>
+          <p className="mt-4 text-sm italic">Keep these questions in mind as you review the data below - they'll help you develop your strategy!</p>
+        </div>
+
+
         <Card>
         <CardHeader>
           <CardTitle>Online Traffic vs Algorithm Absolute Error</CardTitle>

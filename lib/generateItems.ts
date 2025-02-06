@@ -236,12 +236,12 @@ const calculateAlgorithmPrediction = (
         }
         
         // Add some noise to prediction
-        prediction += random.normal(0, 10);
+        prediction += random.normal(0, 15);
     }
 
-    if (phase < 4) {
-        prediction += random.normal(0, 5);
-    }
+    // if (phase < 4) {
+    //     prediction += random.normal(0, 5);
+    // }
     
     return Math.round(Math.max(0, prediction));
 };

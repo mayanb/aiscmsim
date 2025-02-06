@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { GAME_CONFIG } from '../../config';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Phase1Intro = dynamic(() => import('../../components/phases/Phase1Intro'), { ssr: false });
 const Phase1 = dynamic(() => import('../../components/phases/Phase1'), { ssr: false });
@@ -52,29 +54,42 @@ export default function Phase1Page() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 max-w-7xl">
       {showIntro ? (
         <Phase1Intro
           onBeginPhase1={handleBeginPhase1}
         />
       ) : (
-        <div>
-          <h1 className="text-2xl font-bold mb-6">Phase 1: Initial Demand Predictions</h1>
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold text-center text-blue-800">Phase 1: Testing Your AI</h1>
           
-          <div className="mb-6">
-            <p>Make your predictions for {GAME_CONFIG.PHASE_1_DECISIONS} different items.</p>
-            <p>For each item, you will see:</p>
-            <ul className="list-disc ml-6 mt-2">
-              <li>Last year&apos;s sales for the same month</li>
-              <li>The current month</li>
-              <li>The average temperature</li>
-            </ul>
-          </div>
+          <Alert className="bg-blue-50">
+            <AlertDescription className="text-lg">
+              Time to make {GAME_CONFIG.PHASE_1_DECISIONS} predictions using your AI model to help TRENDY THREADS INC. forecast product demand.
+            </AlertDescription>
+          </Alert>
 
-          <Phase1 
-            sessionId={sessionId}
-            playerId={playerId}
-          />
+          <Card>
+            <CardContent className="p-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-md font-semibold mb-2">📊 For Each Product, You&apos;ll See:</h3>
+                <ul className="list-disc ml-6 space-y-2">
+                  <li><strong>Historical Sales:</strong> Last year&apos;s average monthly sales for this product line</li>
+                  <li><strong>Seasonality:</strong> The current month we&apos;re forecasting for</li>
+                  <li><strong>Weather Impact:</strong> Average temperature for the current month</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <Phase1 
+                sessionId={sessionId}
+                playerId={playerId}
+              />
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

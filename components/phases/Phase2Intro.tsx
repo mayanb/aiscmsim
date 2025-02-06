@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '../../lib/supabase';
-import { GAME_CONFIG } from '../../config';  // Adjust path as needed
+import { GAME_CONFIG } from '../../config';
 
 interface Phase2IntroProps {
   sessionId: string;
@@ -98,31 +98,61 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold text-center text-blue-800">Phase 2: Meet Your New AI Assistant</h1>
+
       <Alert className="bg-blue-50">
-        <AlertDescription className="text-lg">
-          Welcome to Phase 2! Your company has developed an AI algorithm to assist with demand forecasting.
-          Let&apos;s examine how it would have performed on your Phase 1 decisions.
+        <AlertDescription className="text-lg space-y-4">
+          <p>
+            While you&apos;ve been working on your forecasts, TRENDY THREADS INC.&apos;s data science team has been busy! 
+            Over the past year, they&apos;ve been developing their own AI system called TrendAI, training it on thousands of 
+            historical product launches and sales patterns.
+          </p>
+          <p>
+            Impressed by your performance in Phase 1, management has decided to give you early access to TrendAI. 
+            They believe combining your expertise with TrendAI&apos;s capabilities could lead to even better demand predictions.
+          </p>
         </AlertDescription>
       </Alert>
 
+      <div className="bg-purple-50 p-4 rounded-lg my-4">
+        <h3 className="text-md font-semibold mb-2">🔍 What to Watch For in Phase 2:</h3>
+        <p className="mb-2">As you analyze the results and prepare for Phase 2, consider:</p>
+        <ul className="list-disc ml-6 space-y-2">
+          <li><strong>AI Performance:</strong> How do TrendAI&apos;s predictions compare to your AI&apos;s?</li>
+          <li><strong>Pattern Recognition:</strong> Are there specific months or temperature ranges where one AI consistently outperforms the other?</li>
+          <li><strong>Decision Strategy:</strong> How will you decide when to trust TrendAI vs. your own AI&apos;s predictions?</li>
+          <li><strong>Collaboration Potential:</strong> Can you identify ways to combine the strengths of both AIs for better predictions?</li>
+        </ul>
+        <p className="mt-4 text-sm italic">Keep these questions in mind as you review the performance data below - they&apos;ll help guide your strategy in Phase 2!</p>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Performance Comparison</CardTitle>
+          <CardTitle>Your AI vs TrendAI: Phase 1 Performance</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Your Average Error</h3>
+              <h3 className="text-sm font-medium text-slate-600">Your AI&apos;s MAE</h3>
               <p className="text-2xl font-bold">{playerMAE.toLocaleString()}</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Algorithm Average Error</h3>
+              <h3 className="text-sm font-medium text-slate-600">TrendAI&apos;s MAE</h3>
               <p className="text-2xl font-bold">{algorithmMAE.toLocaleString()}</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Algorithm Performed Better In</h3>
+              <h3 className="text-sm font-medium text-slate-600">TrendAI Outperformed In</h3>
               <p className="text-2xl font-bold">{algorithmBetterCount} / {GAME_CONFIG.PHASE_1_DECISIONS} decisions</p>
             </div>
+          </div>
+
+          <div className="bg-gray-50 p-4 rounded-lg mb-8">
+            <h3 className="text-md font-semibold mb-2">🤝 Working Together in Phase 2:</h3>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>You&apos;ll see TrendAI&apos;s prediction for each product</li>
+              <li>You can use or adjust TrendAI&apos;s prediction based on your judgment</li>
+              <li>You&apos;ll make {GAME_CONFIG.PHASE_2_DECISIONS} decisions with TrendAI&apos;s help</li>
+            </ul>
           </div>
 
           <div className="space-y-8">
@@ -140,8 +170,8 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
                   <Tooltip />
                   <Legend wrapperStyle={{ paddingTop: '20px' }}/>
                   <Line type="monotone" dataKey="actual_demand" stroke="#4B5563" name="Actual Demand" strokeWidth={2} />
-                  <Line type="monotone" dataKey="player_prediction" stroke="#2563EB" name="Your Prediction" strokeWidth={2} />
-                  <Line type="monotone" dataKey="algorithm_prediction" stroke="#DC2626" name="Algorithm Prediction" strokeWidth={2} />
+                  <Line type="monotone" dataKey="player_prediction" stroke="#2563EB" name="Your AI" strokeWidth={2} />
+                  <Line type="monotone" dataKey="algorithm_prediction" stroke="#DC2626" name="TrendAI" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -159,8 +189,8 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
                   <Legend wrapperStyle={{ paddingTop: '20px' }}/>
-                  <Line type="monotone" dataKey="player_error" stroke="#2563EB" name="Your Error" strokeWidth={2} />
-                  <Line type="monotone" dataKey="algorithm_error" stroke="#DC2626" name="Algorithm Error" strokeWidth={2} />
+                  <Line type="monotone" dataKey="player_error" stroke="#2563EB" name="Your AI Error" strokeWidth={2} />
+                  <Line type="monotone" dataKey="algorithm_error" stroke="#DC2626" name="TrendAI Error" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -173,10 +203,10 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
                     <TableRow>
                       <TableHead>Decision</TableHead>
                       <TableHead>Month</TableHead>
-                      <TableHead>Last Year Sales</TableHead>
+                      <TableHead>Last Year&apos;s Sales</TableHead>
                       <TableHead>Temperature</TableHead>
-                      <TableHead>Algorithm Prediction</TableHead>
-                      <TableHead>Your Prediction</TableHead>
+                      <TableHead>TrendAI Prediction</TableHead>
+                      <TableHead>Your AI Prediction</TableHead>
                       <TableHead>Actual Demand</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -200,7 +230,9 @@ const Phase2Intro: React.FC<Phase2IntroProps> = ({ sessionId, playerId, onBeginP
             </div>
           </div>
 
-          <div className="mt-16 flex justify-center">
+
+
+          <div className="mt-8 flex justify-center">
             <Button 
               onClick={onBeginPhase2} 
               className="w-48"

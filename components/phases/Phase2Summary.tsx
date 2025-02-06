@@ -21,16 +21,6 @@ interface PlayerDecisionResponse {
   };
 }
 
-// interface ClassDecisionResponse {
-//   player_prediction: number;
-//   items: {
-//     id: string;
-//     decision_number: number;
-//     actual_demand: number;
-//     algorithm_prediction: number;
-//   };
-// }
-
 interface DecisionData {
   decision_number: number;
   player_prediction: number;
@@ -130,64 +120,93 @@ const router = useRouter();
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      <Alert className="bg-blue-50">
-        <AlertDescription className="text-lg">
-          Phase 2 Complete! Let&apos;s analyze how you performed with the algorithm&apos;s assistance.
-        </AlertDescription>
-      </Alert>
-
+    <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Performance Summary</CardTitle>
+          <CardTitle>Phase 2 Performance Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            <div className="text-center p-6 bg-slate-50 rounded-lg">
-              <h3 className="text-sm font-medium text-slate-600 mb-2">Your Average Error</h3>
-              <p className="text-3xl font-bold">{summaryStats.averageError.toLocaleString()}</p>
-              <p className="text-sm text-slate-500 mt-2">vs Algorithm: {summaryStats.algorithmAverageError.toLocaleString()}</p>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="p-4 bg-slate-50 rounded-lg text-center">
+              <h3 className="text-sm font-medium text-slate-600">Your Average Error</h3>
+              <p className="text-2xl font-bold">{summaryStats.averageError.toLocaleString()}</p>
             </div>
-            <div className="text-center p-6 bg-slate-50 rounded-lg">
-              <h3 className="text-sm font-medium text-slate-600 mb-2">Average Deviation from Algorithm</h3>
-              <p className="text-3xl font-bold">{summaryStats.averageDeviation.toLocaleString()}</p>
+            <div className="p-4 bg-slate-50 rounded-lg text-center">
+              <h3 className="text-sm font-medium text-slate-600">TrendAI&apos;s Average Error</h3>
+              <p className="text-2xl font-bold">{summaryStats.algorithmAverageError.toLocaleString()}</p>
             </div>
-            <div className="text-center p-6 bg-slate-50 rounded-lg">
-              <h3 className="text-sm font-medium text-slate-600 mb-2">Num Beneficial Algorithm Adjustments</h3>
-              <p className="text-3xl font-bold">{summaryStats.timesOutperformedAlgorithm} / {summaryStats.totalDecisions}</p>
+            <div className="p-4 bg-slate-50 rounded-lg text-center">
+              <h3 className="text-sm font-medium text-slate-600">Times You Improved on TrendAI</h3>
+              <p className="text-2xl font-bold">{summaryStats.timesOutperformedAlgorithm} / {summaryStats.totalDecisions}</p>
             </div>
           </div>
 
-          <div className="space-y-12">
-            <div className="h-96">
-              <h3 className="text-lg font-semibold mb-4">Algorithm Deviations Over Time</h3>
+          <div className="space-y-8">
+            <div className="h-96 mb-12">
+              <h3 className="text-lg font-semibold mb-4">Demand Predictions Over Time</h3>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={decisions} margin={{ top: 5, right: 30, bottom: 55, left: 30 }}>
+                <LineChart data={decisions} margin={{ top: 5, right: 20, bottom: 45, left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="decision_number" 
-                    label={{ value: 'Decision Number', position: 'bottom', offset: 50 }}
-                    tick={{ dy: 15 }}
+                  <XAxis
+                    dataKey="decision_number"
+                    label={{ value: 'Decision Number', position: 'bottom' }}
+                    tick={{ dy: 10 }}
                   />
-                  <YAxis label={{ value: 'Absolute Deviation', angle: -90, position: 'insideLeft', offset: -10 }} />
+                  <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
-                  <Legend wrapperStyle={{ paddingTop: '15px', paddingBottom: '10px' }}/>
-                  <Line type="monotone" dataKey="algorithm_deviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
-                  <Line type="monotone" dataKey="algorithm_error" stroke="#DC2626" name="Algorithm Error" strokeWidth={2} />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }}/>
+                  <Line type="monotone" dataKey="actual_demand" stroke="#4B5563" name="Actual Demand" strokeWidth={2} />
+                  <Line type="monotone" dataKey="player_prediction" stroke="#2563EB" name="Your Prediction" strokeWidth={2} />
+                  <Line type="monotone" dataKey="algorithm_prediction" stroke="#DC2626" name="TrendAI Prediction" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="h-96">
-              <h3 className="text-lg font-semibold mb-4">Error vs Algorithm Deviation</h3>
+            <div className="h-96 mb-12">
+              <h3 className="text-lg font-semibold mb-4">Prediction Errors Over Time</h3>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={decisions} margin={{ top: 5, right: 20, bottom: 45, left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="decision_number"
+                    label={{ value: 'Decision Number', position: 'bottom' }}
+                    tick={{ dy: 10 }}
+                  />
+                  <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }}/>
+                  <Line type="monotone" dataKey="error" stroke="#2563EB" name="Your Error" strokeWidth={2} />
+                  <Line type="monotone" dataKey="algorithm_error" stroke="#DC2626" name="TrendAI Error" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="h-96 mb-12">
+              <h3 className="text-lg font-semibold mb-4">Deviation from TrendAI Over Time</h3>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={decisions} margin={{ top: 5, right: 20, bottom: 45, left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="decision_number"
+                    label={{ value: 'Decision Number', position: 'bottom' }}
+                    tick={{ dy: 10 }}
+                  />
+                  <YAxis label={{ value: 'Absolute Deviation from TrendAI', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="algorithm_deviation" stroke="#2563EB" name="Your Deviation" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="h-96 mb-12">
+              <h3 className="text-lg font-semibold mb-4">Error vs Deviation from TrendAI</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 20, right: 30, bottom: 55, left: 30 }}>
                   <CartesianGrid />
                   <XAxis 
                     dataKey="algorithm_deviation"
                     type="number"
-                    name="Absolute Deviation from Algorithm"
-                    label={{ value: 'Absolute Deviation from Algorithm', position: 'bottom', offset: 35 }}
+                    name="Absolute Deviation from TrendAI"
+                    label={{ value: 'Absolute Deviation from TrendAI', position: 'bottom', offset: 35 }}
                     tick={{ dy: 15 }}
                     domain={[0, 'maxData']}
                     interval={0}
@@ -197,7 +216,7 @@ const router = useRouter();
                     dataKey="error"
                     type="number"
                     name="Prediction Error"
-                    label={{ value: 'Prediction Error', angle: -90, position: 'insideLeft', offset: -10 }}
+                    label={{ value: 'Your Prediction Error', angle: -90, position: 'insideLeft', offset: -10 }}
                     domain={[0, 'maxData']}
                     tickCount={10}
                   />
@@ -209,13 +228,52 @@ const router = useRouter();
                   <Scatter
                     data={decisions}
                     fill="#2563EB"
+                    name="Decisions"
                   />
                 </ScatterChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="mt-16 flex justify-center">
+          <Card className="mt-16 bg-blue-50 border-blue-100">
+            <CardHeader>
+              <CardTitle className="text-lg">🤔 Reflection Questions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-blue-800">
+                Consider these questions as you reflect on your Phase 2 performance. Please copy them down to answer in your post-simulation reflection:
+              </p>
+              <div className="space-y-3">
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">🎯 Performance Analysis</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>How does your MAE ({summaryStats.averageError.toLocaleString()}) compare to what it would have been if you had just used TrendAI ({summaryStats.algorithmAverageError.toLocaleString()})?</li>
+                    <li>On average, how much did you adjust TrendAI&apos;s predictions (average deviation: {summaryStats.averageDeviation.toLocaleString()})?</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">🤝 Trust & Reliance</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>How did your trust in TrendAI evolve as you observed its performance over time?</li>
+                    <li>After seeing TrendAI make a significant error, how did it affect your reliance on its predictions?</li>
+                    <li>Were there specific situations or patterns where you learned to trust or doubt TrendAI more?</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">📈 Adjustment Patterns</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>How did your adjustment strategy change over time? Did you make larger or smaller adjustments?</li>
+                    <li>What factors influenced how much you adjusted TrendAI&apos;s predictions?</li>
+                    <li>Looking at the Error vs Deviation plot, what patterns do you notice about when your adjustments helped or hurt?</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="mt-8 flex justify-center">
             <Button 
               onClick={() => router.push('/phase3')} 
               className="w-48"

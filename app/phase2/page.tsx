@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import Phase2Intro from '../../components/phases/Phase2Intro';
 import Phase2 from '../../components/phases/Phase2';
 import { GAME_CONFIG } from '../../config';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function Phase2Page() {
   const router = useRouter();
@@ -48,7 +50,7 @@ export default function Phase2Page() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 max-w-7xl">
       {showIntro ? (
         <Phase2Intro
           sessionId={sessionId}
@@ -56,23 +58,38 @@ export default function Phase2Page() {
           onBeginPhase2={handleBeginPhase2}
         />
       ) : (
-        <div className="container mx-auto py-8">
-          <h1 className="text-2xl font-bold mb-6">Phase 2: Algorithm-Based Demand Predictions</h1>
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold text-center text-blue-800">Phase 2: Meet Your New AI Assistant</h1>
+          
+          <Alert className="bg-blue-50">
+            <AlertDescription className="text-lg">
+              Time to make {GAME_CONFIG.PHASE_2_DECISIONS} predictions with TrendAI&apos;s help. For each product, 
+              you&apos;ll see TrendAI&apos;s forecast alongside the market data.
+            </AlertDescription>
+          </Alert>
 
-          <div className="mb-6">
-            <p>Welcome to your second task as a demand planner! In this phase, you&apos;ll make {GAME_CONFIG.PHASE_2_DECISIONS} demand predictions for various items.</p>
-            <p>For each item, you&apos;ll see:</p>
-            <ul className="list-disc ml-6 mt-2">
-              <li>Last year&apos;s sales for the same month</li>
-              <li>The current month</li>
-              <li>The average temperature</li>
-              <li>Your company algorithm&apos;s demand forecast</li>
-            </ul>
-            <Phase2
-              sessionId={sessionId}
-              playerId={playerId}
-            />
-          </div>
+          <Card>
+            <CardContent className="p-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-md font-semibold mb-2">📊 For Each Product, You&apos;ll See:</h3>
+                <ul className="list-disc ml-6 space-y-2">
+                  <li><strong>Historical Sales:</strong> Last year&apos;s average monthly sales for this product line</li>
+                  <li><strong>Seasonality:</strong> The current month we&apos;re forecasting for</li>
+                  <li><strong>Weather Impact:</strong> Average temperature for the current month</li>
+                  <li><strong>AI Forecast:</strong> TrendAI&apos;s demand prediction</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <Phase2
+                sessionId={sessionId}
+                playerId={playerId}
+              />
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

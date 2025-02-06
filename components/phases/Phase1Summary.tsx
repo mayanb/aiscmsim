@@ -108,7 +108,7 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
         <CardContent>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="p-4 bg-slate-50 rounded-lg text-center">
-              <h3 className="text-sm font-medium text-slate-600">Your Average Error</h3>
+              <h3 className="text-sm font-medium text-slate-600">Your Mean Absolute Error</h3>
               <p className="text-2xl font-bold">{Math.round(summaryData.metrics.playerMAE).toLocaleString()}</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-lg text-center">
@@ -141,13 +141,49 @@ const Phase1Summary: React.FC<Phase1SummaryProps> = ({ sessionId, playerId }) =>
                   <XAxis dataKey="decision" label={{ value: 'Decision Number', position: 'bottom' }} tick={{ dy: 10 }} />
                   <YAxis label={{ value: 'Absolute Error', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
-                  <Line type="monotone" dataKey="playerError" stroke="#2563EB" name="Your Error" strokeWidth={2} />
+                  <Line type="monotone" dataKey="playerError" stroke="#DC2626" name="Your Error" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="mt-16 flex justify-center">
+          <Card className="mt-8 bg-blue-50 border-blue-100">
+            <CardHeader>
+              <CardTitle className="text-lg">🤔 Reflection Questions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-blue-800">
+                Consider these questions as you reflect on your Phase 1 performance. Please copy them down to answer in your post-simulation reflection:
+              </p>
+              <div className="space-y-3">
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">🎯 Algorithm Performance</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>How well did your algorithm perform overall? What was its MAE? Were you satisfied with its accuracy?</li>
+                    <li>In what situations did your algorithm perform particularly well or poorly?</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">📊 Patterns & Biases</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>Did you notice any systematic bias in your algorithm predictions (consistently too high or too low)?</li>
+                    <li>How did your algorithm respond to different months or temperature ranges?</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">🔄 Future Improvements</h4>
+                  <ul className="list-disc ml-6 space-y-2 text-gray-700">
+                    <li>What adjustments could you make to your algorithm to improve its performance?</li>
+                    <li>Which features (historical sales, month, temperature) seemed most important for accurate predictions?</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="mt-8 flex justify-center">
             <Button 
               onClick={() => router.push('/phase2')} 
               className="w-48"

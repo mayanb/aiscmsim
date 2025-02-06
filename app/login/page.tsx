@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { format } from 'date-fns'
 
 
@@ -230,64 +231,100 @@ export default function StudentLoginPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Join Game Session</h1>
-      
-      <form onSubmit={joinSession} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Select Session
-          </label>
-          <select
-            value={selectedSession}
-            onChange={(e) => setSelectedSession(e.target.value)}
-            className="w-full border rounded p-2"
-            required
-          >
-            <option value="">Choose a session...</option>
-            {sessions.map(session => (
-              <option key={session.id} value={session.id}>
-                {session.name}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
+      <div className="max-w-3xl mx-auto space-y-8">
+        {/* Welcome Card */}
+        <Card className="border-2 border-blue-200">
+          <CardHeader className="space-y-4">
+            <CardTitle className="text-3xl text-center text-blue-800">
+              Welcome to the Simulation
+            </CardTitle>
+            <CardDescription className="text-lg text-center">
+              AI-Powered Demand Forecasting
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="prose max-w-none">
+              <p className="text-gray-700">
+                Congratulations on joining the retail analytics team of TRENDY THREADS INC.! As our newest Demand Planning Specialist, 
+                you&apos;ll be at the forefront of using data-driven insights to optimize our inventory decisions.
+              </p>
+              <p className="text-gray-700">
+                Your mission is to accurately predict customer demand for our products. You&apos;ll start with 
+                basic forecasting, then work with our AI assistant, and eventually tackle complex market 
+                changes. Every decision counts – under-stocking means missed sales, while over-stocking 
+                ties up valuable resources.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Your Name
-          </label>
-          <input
-            type="text"
-            value={studentName}
-            onChange={(e) => setStudentName(e.target.value)}
-            placeholder="Enter your full name"
-            className="w-full border rounded p-2"
-            required
-          />
-        </div>
+        {/* Login Form Card */}
+        <Card className="border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-xl">Join Your Session</CardTitle>
+            <CardDescription>
+              Enter your details below to begin the simulation
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={joinSession} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Select Your Class
+                </label>
+                <select
+                  value={selectedSession}
+                  onChange={(e) => setSelectedSession(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Choose your class...</option>
+                  {sessions.map(session => (
+                    <option key={session.id} value={session.id}>
+                      {session.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Your Name
+                </label>
+                <input
+                  type="text"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full bg-blue-500 text-white px-4 py-2 rounded
-            ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}
-          `}
-        >
-          {loading ? 'Joining...' : 'Join Session'}
-        </button>
-      </form>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {loading ? 'Joining...' : 'Begin Simulation'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Existing Player Dialog - remains the same */}
       <Dialog open={showPlayerExists} onOpenChange={setShowPlayerExists}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Players Found</DialogTitle>
+            <DialogTitle>Welcome Back!</DialogTitle>
             <DialogDescription>
               We found {existingPlayers.length} player(s) with the name {studentName} in this session. 
               Please select your account or create a new one.
@@ -296,14 +333,14 @@ export default function StudentLoginPage() {
           
           <div className="space-y-4">
             {existingPlayers.map((player) => (
-              <div key={player.id} className="p-4 border rounded-lg">
-                <p className="text-sm text-gray-600">Created: {format(new Date(player.created_at), 'MMM d, yyyy h:mm a')}</p>
-                <p>Currently on: Phase {player.phase}, Decision {player.current_decision}</p>
+              <div key={player.id} className="p-4 border rounded-lg bg-gray-50">
+                <p className="text-sm text-gray-600">Started: {format(new Date(player.created_at), 'MMM d, yyyy h:mm a')}</p>
+                <p className="text-gray-700">Currently on: Phase {player.phase}, Decision {player.current_decision}</p>
                 <Button 
                   onClick={() => handleExistingPlayerContinue(player.id)}
                   className="mt-2"
                 >
-                  Continue as this player
+                  Continue Your Journey
                 </Button>
               </div>
             ))}
@@ -318,7 +355,7 @@ export default function StudentLoginPage() {
                 setLoading(false)
               }}
             >
-              Create New Player
+              Start Fresh
             </Button>
           </DialogFooter>
         </DialogContent>
