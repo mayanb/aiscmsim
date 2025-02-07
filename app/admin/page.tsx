@@ -5,6 +5,13 @@ import { supabase, type Session } from '../../lib/supabase'
 import * as XLSX from 'xlsx'
 import { useRouter } from 'next/navigation'
 import { generateSessionItems } from '../../lib/generateItems'
+import { Switch } from "@/components/ui/switch"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+
+
 
 export default function AdminPage() {
   const router = useRouter()
@@ -56,6 +63,21 @@ export default function AdminPage() {
     }
   }
 
+    // Add the toggle function
+    const toggleSessionStatus = async (sessionId: number, newStatus: boolean) => {
+      const { error } = await supabase
+        .from('sessions')
+        .update({ is_active: newStatus })
+        .eq('id', sessionId)
+
+      if (error) {
+        console.error('Error updating session:', error)
+        return
+      }
+
+      loadSessions() // Refresh the list
+    }
+
   const generateSimulatedData = () => {
     const items = generateSessionItems(42, false, [200, 0, 0, 0]) // Get all items
       .filter(item => item.phase === 1) // Filter for phase 1 only
@@ -91,88 +113,109 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
-          <h1 className="text-xl font-bold mb-4 text-center">Admin Access</h1>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter the secret phrase"
-            className="w-full border p-2 mb-4 rounded"
-            onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-          />
-          <button
-            onClick={handlePasswordSubmit}
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Enter
-          </button>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-xl text-center">Admin Access</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter the secret phrase"
+                onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+              />
+              <Button 
+                onClick={handlePasswordSubmit}
+                className="w-full"
+              >
+                Enter
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
-
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-xl font-bold">Create Game Session</h1>
-        <button 
-          onClick={generateSimulatedData}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          Generate Phase 1 Data
-        </button>
-      </div>
-      
-      {/* Create session form */}
-      <div className="mb-8">
-        <input 
-          type="text"
-          value={sessionName}
-          onChange={(e) => setSessionName(e.target.value)}
-          placeholder="Session name (e.g., MBA 505 Spring 2025)"
-          className="border p-2 mr-2 rounded"
-        />
-        <button 
-          onClick={createSession}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Create Session
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Game Session Management</CardTitle>
+              <Button 
+                onClick={generateSimulatedData}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Generate Training Data
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Create session form */}
+              <div className="flex gap-4">
+                <Input
+                  value={sessionName}
+                  onChange={(e) => setSessionName(e.target.value)}
+                  placeholder="Session name (e.g., MBA 505 Spring 2025)"
+                  className="flex-1"
+                />
+                <Button 
+                  onClick={createSession}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Create Session
+                </Button>
+              </div>
 
-      {/* List of sessions */}
-      <div>
-        <h2 className="font-bold mb-2">Existing Sessions:</h2>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="text-left p-2 border">Name</th>
-              <th className="text-left p-2 border">Status</th>
-              <th className="text-left p-2 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessions.map(session => (
-              <tr key={session.id} className="border-b hover:bg-gray-50">
-                <td className="p-2 border">{session.name}</td>
-                <td className="p-2 border">{session.is_active ? 'Active' : 'Inactive'}</td>
-                <td className="p-2 border">
-                  <button
-                    onClick={() => handleSessionClick(session.id)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    View Details
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              {/* Sessions table */}
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Session Name</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sessions.map(session => (
+                      <TableRow key={session.id}>
+                        <TableCell className="font-medium">{session.name}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Switch 
+                              checked={session.is_active}
+                              onCheckedChange={(checked) => toggleSessionStatus(session.id, checked)}
+                            />
+                            <span className="text-sm text-gray-600">
+                              {session.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            onClick={() => handleSessionClick(session.id)}
+                            variant="outline"
+                            size="sm"
+                          >
+                            View Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 }
-
