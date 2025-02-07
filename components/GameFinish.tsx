@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { calculateAlgorithmConfidence, SeededRandom } from '../lib/generateItems';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -215,20 +215,70 @@ const GameFinish: React.FC<GameFinishProps> = ({ sessionId, playerId }) => {
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      <Alert className="bg-blue-50">
-        <AlertDescription className="text-lg">
-          Congratulations on completing the Demand Forecasting Game! Let&apos;s review your performance across all phases.
-        </AlertDescription>
-      </Alert>
+    <div className="space-y-8 max-w-7xl mx-auto p-8">
+      <Card className="border-2 border-blue-200">
+        <CardHeader className="space-y-4">
+          <CardTitle className="text-3xl text-center text-blue-800">
+            🎉 Congratulations on Completing Your Journey! 
+          </CardTitle>
+          <CardDescription className="text-lg text-center">
+            From Novice Forecaster to AI-Empowered Decision Maker
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="prose max-w-none">
+            <p className="text-gray-700">
+              You&apos;ve successfully completed your training at TRENDY THREADS INC., demonstrating remarkable growth 
+              in your ability to make data-driven demand forecasting decisions. Let&apos;s reflect on your journey:
+            </p>
+            
+            <div className="mt-6 space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-blue-800">Phase 1: AI Building</h3>
+                <p className="text-gray-700">
+                  You started by mastering the basics of demand forecasting, learning to analyze historical sales data, 
+                  seasonal patterns, and temperature effects to train your own AI and make informed predictions.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-blue-800">Phase 2: Using AI Effectively</h3>
+                <p className="text-gray-700">
+                  You were introduced to TrendAI, learning to collaborate with artificial intelligence and understanding 
+                  its strengths and limitations in demand forecasting.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-blue-800">Phase 3: Private Information</h3>
+                <p className="text-gray-700">
+                  You gained access to exclusive focus group data, developing strategies to combine AI insights with 
+                  human market intelligence for more accurate predictions.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-blue-800">Phase 4: Digital Transformation</h3>
+                <p className="text-gray-700">
+                  You adapted to our digital transformation, incorporating online traffic data and advertising metrics 
+                  while learning to interpret AI confidence scores in a changing market landscape.
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Overall Performance Summary</CardTitle>
+          <CardTitle>Performance Analysis</CardTitle>
+          <CardDescription>
+            Let&apos;s analyze how your forecasting accuracy evolved throughout the simulation
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-8">
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {phasePerformance.map((phase) => (
                 <div key={phase.phase} className="p-4 bg-slate-50 rounded-lg">
                   <h3 className="text-lg font-semibold mb-2">Phase {phase.phase}</h3>
@@ -237,7 +287,7 @@ const GameFinish: React.FC<GameFinishProps> = ({ sessionId, playerId }) => {
                     <p className="text-2xl font-bold">{Math.round(phase.playerMAE).toLocaleString()}</p>
                     {phase.algorithmMAE && (
                       <>
-                        <p className="text-sm text-slate-600">Algorithm MAE:</p>
+                        <p className="text-sm text-slate-600">TrendAI&apos;s MAE:</p>
                         <p className="text-2xl font-bold">{Math.round(phase.algorithmMAE).toLocaleString()}</p>
                       </>
                     )}
@@ -247,7 +297,7 @@ const GameFinish: React.FC<GameFinishProps> = ({ sessionId, playerId }) => {
             </div>
 
             <div className="h-96">
-              <h3 className="text-lg font-semibold mb-4">MAE Comparison Across Phases</h3>
+              <h3 className="text-lg font-semibold mb-4">Your Learning Journey</h3>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={phasePerformance}
@@ -271,7 +321,7 @@ const GameFinish: React.FC<GameFinishProps> = ({ sessionId, playerId }) => {
                   <Line 
                     type="monotone" 
                     dataKey="algorithmMAE" 
-                    name="Algorithm MAE" 
+                    name="TrendAI&apos;s MAE" 
                     stroke={RED} 
                     strokeWidth={2} 
                   />
@@ -279,12 +329,45 @@ const GameFinish: React.FC<GameFinishProps> = ({ sessionId, playerId }) => {
               </ResponsiveContainer>
             </div>
 
-            <div className="flex justify-center mt-8">
+            <Card className="mt-8 bg-purple-50 border-purple-100">
+              <CardHeader>
+                <CardTitle className="text-lg">🎓 Key Learnings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="bg-white p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">📊 Data-Driven Decision Making</h4>
+                    <p className="text-gray-700">
+                      You&apos;ve learned to balance multiple data sources, from historical sales to real-time digital metrics,
+                      making increasingly sophisticated demand predictions.
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">🤖 Human-AI Collaboration</h4>
+                    <p className="text-gray-700">
+                      You&apos;ve developed skills in working alongside AI, learning when to trust its predictions
+                      and when to apply your own judgment and additional insights.
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">🔄 Adaptability</h4>
+                    <p className="text-gray-700">
+                      Through changing market conditions and new data sources, you&apos;ve demonstrated the ability
+                      to adapt your strategy and maintain forecasting accuracy.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-center gap-4">
               <Button 
                 onClick={handleDownloadData}
                 className="w-64"
               >
-                Download All Phase Data
+                Download Your Simulation Data
               </Button>
             </div>
           </div>
