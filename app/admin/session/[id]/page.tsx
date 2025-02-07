@@ -2,11 +2,15 @@
 
 import { useState, useEffect, use } from 'react';
 import { supabase } from '../../../../lib/supabase'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { Button } from '@/components/ui/button';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import * as XLSX from 'xlsx';
+import { calculateAlgorithmConfidence, SeededRandom } from '../../../../lib/generateItems';
 
+const random = new SeededRandom(42);
 
 interface Decision {
     player_id: string | number;  // Added number since we see IDs are numbers
@@ -272,31 +276,108 @@ export default function SessionSummaryPage(props: Props) {
     return <div>Loading...</div>
   }
 
-  return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">{sessionName}</h1>
+  const handleDownloadData = async () => {
+    try {
+      // Fetch all items for this session
+      const { data: items } = await supabase
+        .from('items')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('phase, decision_number');
 
-      <Card className="mb-8">
+      if (!items) return;
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+
+      // Process data for each phase
+      for (let phase = 1; phase <= 4; phase++) {
+        const phaseItems = items
+          .filter(item => item.phase === phase)
+          .map(item => {
+            const baseData = {
+              'Last Year Demand': item.last_year_sales,
+              'Month': new Date(0, item.month - 1).toLocaleString('default', { month: 'long' }),
+              'Temperature': item.temperature,
+              'Actual Demand': item.actual_demand,
+            };
+
+            if (phase >= 2) {
+              Object.assign(baseData, {
+                'TrendAI Prediction': item.algorithm_prediction,
+              });
+            }
+
+            if (phase == 3) {
+              Object.assign(baseData, {
+                'Focus Group Sentiment': item.social_sentiment,
+              });
+            }
+
+            if (phase === 4) {
+              Object.assign(baseData, {
+                'TrendAI Confidence': calculateAlgorithmConfidence(
+                    random, item.online_traffic, item.advertising_spend, 4), 
+                'Advertising Spend': item.advertising_spend,
+                'Online Traffic': item.online_traffic,
+              });
+            }
+
+            return baseData;
+          });
+
+        // Create worksheet for the phase
+        const ws = XLSX.utils.json_to_sheet(phaseItems);
+        XLSX.utils.book_append_sheet(wb, ws, `Phase ${phase}`);
+      }
+
+      // Save the file
+      XLSX.writeFile(wb, `${sessionName}_data.xlsx`);
+    } catch (error) {
+      console.error('Error downloading data:', error);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center p-8">Loading session data...</div>;
+  }
+
+  return (
+    <div className="space-y-8 max-w-7xl mx-auto p-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-blue-800">{sessionName}</h1>
+        <Button 
+          onClick={handleDownloadData}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          Download Session Data
+        </Button>
+      </div>
+
+      <Card className="border-2 border-blue-200">
         <CardHeader>
           <CardTitle>Player Performance Summary</CardTitle>
+          <CardDescription>
+            Mean Absolute Error (MAE) across all phases
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead onClick={() => handleSort('name')} className="cursor-pointer">
+                <TableHead onClick={() => handleSort('name')} className="cursor-pointer hover:bg-slate-50">
                   Player Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </TableHead>
-                <TableHead onClick={() => handleSort('phase1_mae')} className="cursor-pointer">
+                <TableHead onClick={() => handleSort('phase1_mae')} className="cursor-pointer hover:bg-slate-50">
                   Phase 1 MAE {sortField === 'phase1_mae' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </TableHead>
-                <TableHead onClick={() => handleSort('phase2_mae')} className="cursor-pointer">
+                <TableHead onClick={() => handleSort('phase2_mae')} className="cursor-pointer hover:bg-slate-50">
                   Phase 2 MAE {sortField === 'phase2_mae' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </TableHead>
-                <TableHead onClick={() => handleSort('phase3_mae')} className="cursor-pointer">
+                <TableHead onClick={() => handleSort('phase3_mae')} className="cursor-pointer hover:bg-slate-50">
                   Phase 3 MAE {sortField === 'phase3_mae' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </TableHead>
-                <TableHead onClick={() => handleSort('phase4_mae')} className="cursor-pointer">
+                <TableHead onClick={() => handleSort('phase4_mae')} className="cursor-pointer hover:bg-slate-50">
                   Phase 4 MAE {sortField === 'phase4_mae' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </TableHead>
               </TableRow>
@@ -304,7 +385,7 @@ export default function SessionSummaryPage(props: Props) {
             <TableBody>
               {sortedSummaries.map((player) => (
                 <TableRow key={player.player_id}>
-                  <TableCell>{player.name}</TableCell>
+                  <TableCell className="font-medium">{player.name}</TableCell>
                   <TableCell>{Math.round(player.phase1_mae).toLocaleString()}</TableCell>
                   <TableCell>{Math.round(player.phase2_mae).toLocaleString()}</TableCell>
                   <TableCell>{Math.round(player.phase3_mae).toLocaleString()}</TableCell>
@@ -316,77 +397,78 @@ export default function SessionSummaryPage(props: Props) {
         </CardContent>
       </Card>
 
-      <div className="mb-4">
-        <Select value={selectedPhase} onValueChange={setSelectedPhase}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select phase" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">Phase 1</SelectItem>
-            <SelectItem value="2">Phase 2</SelectItem>
-            <SelectItem value="3">Phase 3</SelectItem>
-            <SelectItem value="4">Phase 4</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       <Card>
         <CardHeader>
-          <CardTitle>Phase {selectedPhase} Performance</CardTitle>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Demand Predictions by Phase</CardTitle>
+              <CardDescription>
+                Comparing actual demand with class predictions
+              </CardDescription>
+            </div>
+            <Select value={selectedPhase} onValueChange={setSelectedPhase}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select phase" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Phase 1</SelectItem>
+                <SelectItem value="2">Phase 2</SelectItem>
+                <SelectItem value="3">Phase 3</SelectItem>
+                <SelectItem value="4">Phase 4</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px] mb-18">
+          <div className="h-[500px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={phaseData}
-               margin={{ top: 5, right: 30, bottom: 40, left: 10 }} // Increased bottom margin from default
+              <LineChart 
+                data={phaseData}
+                margin={{ top: 5, right: 30, bottom: 40, left: 40 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   dataKey="decision_number" 
                   label={{ value: 'Decision Number', position: 'bottom', offset: 25 }}
                 />
-                <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft', offset: -2 }} />
-                <Tooltip />
+                <YAxis label={{ value: 'Demand', angle: -90, position: 'insideLeft', offset: -5 }} />
+                <Tooltip 
+                    formatter={(value: number, name: string) => {
+                        if (name === "Class Average") {
+                        return [Math.round(value).toLocaleString(), name];
+                        }
+                        return [typeof value === 'number' ? value.toLocaleString() : value, name];
+                    }}
+                    />                
                 <Legend />
                 <Line 
                   type="monotone" 
                   dataKey="actual_demand" 
-                  stroke="#8884d8" 
+                  stroke="#4B5563" 
                   name="Actual Demand" 
+                  strokeWidth={2}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="class_average" 
-                  stroke="#82ca9d" 
+                  stroke="#2563EB" 
                   name="Class Average" 
+                  strokeWidth={2}
                 />
                 {selectedPhase !== '1' && (
                   <Line 
                     type="monotone" 
                     dataKey="algorithm_prediction" 
-                    stroke="#ff7300" 
-                    name="Algorithm Prediction" 
+                    stroke="#DC2626" 
+                    name="TrendAI Prediction" 
+                    strokeWidth={2}
                   />
                 )}
-
-                {/* <Line 
-                  type="monotone" 
-                  dataKey="best_student" 
-                  stroke="#ffc658" 
-                  name="Most Accurate Student" 
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="worst_student" 
-                  stroke="#ff0000" 
-                  name="Least Accurate Student" 
-                /> */}
-
               </LineChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

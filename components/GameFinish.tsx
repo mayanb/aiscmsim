@@ -195,16 +195,51 @@ const GameFinish: React.FC<GameFinishProps> = ({ sessionId, playerId }) => {
 
   const handleDownloadData = () => {
     const wb = XLSX.utils.book_new();
-
-    // Create sheets for each phase
+  
+    // Process data for each phase
     Object.entries(allData).forEach(([phase, data]) => {
-      const ws = XLSX.utils.json_to_sheet(data);
+      // Transform the data with better column names
+      const formattedData = data.map(item => {
+        const baseData = {
+          'Last Year Demand': item.last_year_sales,
+          'Month': item.month,
+          'Temperature': item.temperature,
+          'Your Prediction': item.player_prediction,
+          'Actual Demand': item.actual_demand,
+        };
+  
+        if (phase !== '1') {
+          Object.assign(baseData, {
+            'TrendAI Prediction': (item as Phase2Data).algorithm_prediction,
+          });
+        }
+  
+        if (phase == '3') {
+          Object.assign(baseData, {
+            'Focus Group Sentiment': (item as Phase3Data).focus_group_sentiment,
+          });
+        }
+  
+        if (phase === '4') {
+          Object.assign(baseData, {
+            'Advertising Spend': (item as Phase4Data).advertising_spend,
+            'Online Traffic': (item as Phase4Data).online_traffic,
+            'TrendAI Confidence': (item as Phase4Data).algorithm_confidence,
+          });
+        }
+  
+        return baseData;
+      });
+  
+      // Create worksheet for the phase
+      const ws = XLSX.utils.json_to_sheet(formattedData);
       XLSX.utils.book_append_sheet(wb, ws, `Phase ${phase}`);
     });
-
+  
     // Save the file
-    XLSX.writeFile(wb, 'demand_forecasting_game_data.xlsx');
+    XLSX.writeFile(wb, 'your_forecasting_data.xlsx');
   };
+
 
   if (loading) {
     return <div className="text-center p-8">Loading game results...</div>;

@@ -60,19 +60,29 @@ export default function AdminPage() {
     const items = generateSessionItems(42, false, [200, 0, 0, 0]) // Get all items
       .filter(item => item.phase === 1) // Filter for phase 1 only
       .map(item => ({
-        last_year_sales: item.last_year_sales,
-        month: new Date(0, item.month - 1).toLocaleString('default', { month: 'long' }), // Convert month number to name
-        temperature: item.temperature,
-        actual_demand: item.actual_demand
+        'Last Year Demand': item.last_year_sales,
+        'Month': new Date(0, item.month - 1).toLocaleString('default', { month: 'long' }),
+        'Temperature': item.temperature,
+        'Actual Demand': item.actual_demand
       }));
   
     // Create Excel file
     const ws = XLSX.utils.json_to_sheet(items);
+  
+    // Optional: Adjust column widths for better readability
+    const colWidths = [
+      { wch: 15 }, // Last Year Demand
+      { wch: 12 }, // Month
+      { wch: 12 }, // Temperature
+      { wch: 15 }, // Actual Demand
+    ];
+    ws['!cols'] = colWidths;
+  
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Pre-Simulation Training Data');
     
     // Save the file
-    XLSX.writeFile(wb, 'simulation_historical_data.xlsx');
+    XLSX.writeFile(wb, 'simulation_historical_training_data.xlsx');
   };
   
   const handleSessionClick = (sessionId: number) => {
