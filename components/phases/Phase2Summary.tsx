@@ -247,8 +247,8 @@ const router = useRouter();
                 <div className="bg-white p-4 rounded-lg">
                   <h4 className="font-semibold mb-2">🎯 Performance Analysis</h4>
                   <ul className="list-disc ml-6 space-y-2 text-gray-700">
-                    <li>How does your MAE ({summaryStats.averageError.toLocaleString()}) compare to what it would have been if you had just used TrendAI ({summaryStats.algorithmAverageError.toLocaleString()})?</li>
-                    <li>On average, how much did you adjust TrendAI&apos;s predictions (average deviation: {summaryStats.averageDeviation.toLocaleString()})?</li>
+                    <li>How does your MAE compare to what it would have been if you had just used TrendAI?</li>
+                    <li>On average, how much did you adjust TrendAI&apos;s predictions?</li>
                   </ul>
                 </div>
 
